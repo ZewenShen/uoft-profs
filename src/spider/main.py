@@ -37,8 +37,15 @@ def parse_json(json):
         for course in page:
             detail_url = re.search(".*?coursedetails/(.*?)'>", course[1]).group(1)
             url = DETAIL_BASE_URL + detail_url
-            detail_dict = parse_course_detail(get_course_detail(url))
-            
+            info_dict = parse_course_detail(get_course_detail(url))
+
+            info_dict['cID'] = re.search(">(.*?)<", course[1]).group(1)
+            info_dict['cName'] = course[2]
+            info_dict['credits'] = course[3]
+            info_dict['campus'] = course[4].strip(' ')
+            info_dict['department'] = course[5].strip(' ')
+            info_dict['term'] = course[6]
+            info_dict['division'] = course[7].strip(' ')
 
 
 def get_course_detail(url):
@@ -55,12 +62,12 @@ def parse_course_detail(html):
     taglist = soup.find_all('span', attrs = {'id': re.compile("^u2(45|54|63|72|81|90)_line\d$")})
     clean_pattern = re.compile(' \n|\n|\r')
     return {
-            "Lec_Num": [re.sub(clean_pattern, '', taglist[6 * i].getText()) for i in range(len(taglist) // 6)],
-            "Lec_Time": [re.sub(clean_pattern, '', taglist[1 + 6 * i].getText()) for i in range(len(taglist) // 6)],
-            "Instructor": [re.sub(clean_pattern, '', taglist[2 + 6 * i].getText()) for i in range(len(taglist) // 6)],
-            "Location": [re.sub(clean_pattern, '', taglist[3 + 6 * i].getText()) for i in range(len(taglist) // 6)],
-            "Size": [re.sub(clean_pattern, '', taglist[4 + 6 * i].getText()) for i in range(len(taglist) // 6)],
-            "Current_Enrollment": [re.sub(clean_pattern, '', taglist[5 + 6 * i].getText()) for i in range(len(taglist) // 6)]
+            "lecNum": [re.sub(clean_pattern, '', taglist[6 * i].getText()) for i in range(len(taglist) // 6)],
+            "lecTime": [re.sub(clean_pattern, '', taglist[1 + 6 * i].getText()) for i in range(len(taglist) // 6)],
+            "instructor": [re.sub(clean_pattern, '', taglist[2 + 6 * i].getText()) for i in range(len(taglist) // 6)],
+            "location": [re.sub(clean_pattern, '', taglist[3 + 6 * i].getText()) for i in range(len(taglist) // 6)],
+            "size": [re.sub(clean_pattern, '', taglist[4 + 6 * i].getText()) for i in range(len(taglist) // 6)],
+            "currentEnrollment": [re.sub(clean_pattern, '', taglist[5 + 6 * i].getText()) for i in range(len(taglist) // 6)]
             }
 
 
