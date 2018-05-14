@@ -72,16 +72,24 @@ def parse_course_detail(html):
     br = soup.find('span', attrs = {'id': 'u122'})
     table = soup.find_all('span', attrs = {'id': re.compile("^u2(45|54|63|72|81|90)_line\d$")})
     clean_pattern = re.compile(' \n|\n|\r')
+    
+    num_of_courses = len(table) // 6
+
     return {
             "prerequisites": prerequisites.getText().strip('\r\n') if prerequisites is not None else None,
             "exclusion": exclusion.getText().strip('\r\n') if exclusion is not None else None,
             "br": br.getText().strip('\r\n') if br is not None else None,
-            "lecNum": [re.sub(clean_pattern, '', table[6 * i].getText()) for i in range(len(table) // 6)],
-            "lecTime": [re.sub(clean_pattern, '', table[1 + 6 * i].getText()) for i in range(len(table) // 6)],
-            "instructor": [re.sub(clean_pattern, '', table[2 + 6 * i].getText()) for i in range(len(table) // 6)],
-            "location": [re.sub(clean_pattern, '', table[3 + 6 * i].getText()) for i in range(len(table) // 6)],
-            "size": [re.sub(clean_pattern, '', table[4 + 6 * i].getText()) for i in range(len(table) // 6)],
-            "currentEnrollment": [re.sub(clean_pattern, '', table[5 + 6 * i].getText()) for i in range(len(table) // 6)]
+            "lecNum": [re.sub(clean_pattern, '', table[6 * i].getText()) for i in range(num_of_courses)],
+            "lecTime": [re.sub(clean_pattern, '', table[1 + 6 * i].getText()) for i in range(num_of_courses)],
+            "instructor": [re.sub(clean_pattern, '', table[2 + 6 * i].getText()) for i in range(num_of_courses)],
+            "location": [re.sub(clean_pattern, '', table[3 + 6 * i].getText()) for i in range(num_of_courses)],
+            "size": [int(re.sub(clean_pattern, '', table[4 + 6 * i].getText())) for i in range(num_of_courses)],
+            "currentEnrollment": [None for i in range(num_of_courses)]
+            #"currentEnrollment": [int(re.sub(clean_pattern, '', table[5 + 6 * i].getText())) for i in range(len(table) // 6)]
+            #
+            # the code above should be uncommented when currentEnrollment
+            # appears in the website. Now all the currentEnrollment is None, so I
+            # cannot apply int to it.
             }
 
 
@@ -91,13 +99,16 @@ if __name__ == '__main__':
     connection = get_connection(DB_PATH)
     cursor = connection.cursor()
 
-    count = 0 
+    Buffer = 0 
+    count = 0
     for course_dict in parse_json(get_all_courses_json()):
         insert_data(cursor, course_dict)
         count += 1
-        if count == COMMIT_BUFFER:
+        Buffer += 1
+        if Buffer == COMMIT_BUFFER:
+            print("{}th time insert successfully".format(count))
             commit_data(connection)
-            count = 0
+            Buffer = 0
     
     connection.close()
 

@@ -1,6 +1,6 @@
 import pymysql
 
-DB_NAME = 'uoft-courses'
+DB_NAME = 'uoftcourses'
 
 def __get_params(path):
     f = open(path, 'r')
@@ -20,16 +20,18 @@ def init_db(path): # Should be called when this project is executed first time
 
     connection.select_db(DB_NAME)
     cursor = connection.cursor()
-    sql = "CREATE TABLE IF NOT EXISTS Course (cID VARCHAR(10) NOT NULL, cName\
-    VARCHAR(75) NOT NULL, credits FLOAT NOT NULL, campus VARCHAR(50) NOT NULL,\
-    department VARCHAR(50) NOT NULL, term VARCHAR(25) NOT NULL, division\
-    VARCHAR(50) NOT NULL, prerequisites VARCHAR(50), exclusion VARCHAR(40), br\
-    VARCHAR(50), lecNum VARCHAR(20) NOT NULL, lecTime VARCHAR(125) NOT\
-    NULL, instructor VARCHAR(80), location VARCHAR(60), size INT(5),\
+    sql = "CREATE TABLE IF NOT EXISTS Course (cID VARCHAR(30) NOT NULL, cName\
+    VARCHAR(300) NOT NULL, credits FLOAT NOT NULL, campus VARCHAR(150) NOT NULL,\
+    department VARCHAR(160) NOT NULL, term VARCHAR(150) NOT NULL, division\
+    VARCHAR(200) NOT NULL, prerequisites VARCHAR(1000), exclusion VARCHAR(1000), br\
+    VARCHAR(200), lecNum VARCHAR(30) NOT NULL, lecTime VARCHAR(125) NOT\
+    NULL, instructor VARCHAR(500), location VARCHAR(250), size INT(5),\
     currentEnrollment INT(5), PRIMARY KEY (cID, term, lecNum))"
     cursor.execute(sql)
 
-    db.close()
+    print("database intialized")
+
+    connection.close()
 
 
 def get_connection(path):
@@ -53,13 +55,20 @@ def insert_data(cursor, info_dict):
     prerequisites = info_dict['prerequisites']
     exclusion = info_dict['exclusion']
     br = info_dict['br']
+    lecNum_list = info_dict['lecNum']
+    lecTime_list = info_dict['lecTime']
+    instructor_list = info_dict['instructor']
+    location_list = info_dict['location']
+    size_list = info_dict['size']
+    currentEnrollment_list = info_dict['currentEnrollment']
 
-    num_of_courses = len(info_dict['lecNum']) # this must be equal to len(info_dict['lecTime'], etc.
+    num_of_courses = len(lecNum_list) # this must be equal to len(info_dict['lecTime'], etc.
 
     for i in range(num_of_courses):
+        print(cID)
         cursor.execute(sql, (cID, cName, credits, campus, department, term,\
-            division, prerequisites, exclusion, br, lecNum[i], lecTime[i],\
-            instructor[i], location[i], size[i], currentEnrollment[i]))
+            division, prerequisites, exclusion, br, lecNum_list[i], lecTime_list[i],\
+            instructor_list[i], location_list[i], size_list[i], currentEnrollment_list[i]))
 
 
 def commit_data(connection):
