@@ -1,11 +1,14 @@
-from Database import *
+import sys
+sys.path.append('../util/')
+import Database
 import json
 import requests
 import re
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 
-DB_PATH = '../../database.info'
+DB_NAME = 'uoftcourses'
+DB_PATH = '../../../database.info'
 
 BASE_URL = 'http://coursefinder.utoronto.ca/course-search/search/courseSearch/course/search?'
 DETAIL_BASE_URL = 'http://coursefinder.utoronto.ca/course-search/search/courseInquiry?methodToCall=start&viewId=CourseDetails-InquiryView&courseId='
@@ -94,20 +97,20 @@ def parse_course_detail(html):
 
 
 if __name__ == '__main__':
-    init_db(DB_PATH)
+    Database.init_db(DB_PATH, DB_NAME)
 
-    connection = get_connection(DB_PATH)
+    connection = Database.get_connection(DB_PATH, DB_NAME)
     cursor = connection.cursor()
 
     Buffer = 0 
     count = 0
     for course_dict in parse_json(get_all_courses_json()):
-        insert_data(cursor, course_dict)
+        Database.insert_course_data(cursor, course_dict)
         count += 1
         Buffer += 1
         if Buffer == COMMIT_BUFFER:
             print("{}th time insert successfully".format(count))
-            commit_data(connection)
+            Database.commit_data(connection)
             Buffer = 0
     
     connection.close()

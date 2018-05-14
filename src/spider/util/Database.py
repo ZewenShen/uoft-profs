@@ -1,7 +1,5 @@
 import pymysql
 
-DB_NAME = 'uoftcourses'
-
 def __get_params(path):
     f = open(path, 'r')
     params = f.readlines()
@@ -11,7 +9,7 @@ def __get_params(path):
     return params 
 
 
-def init_db(path): # Should be called when this project is executed first time
+def init_db(path, DB_NAME): # Should be called when this project is executed first time
     params = __get_params(path)
     connection = pymysql.connect(host = params[0], user = params[1], password = params[2], port = params[3])
     cursor = connection.cursor()
@@ -34,13 +32,13 @@ def init_db(path): # Should be called when this project is executed first time
     connection.close()
 
 
-def get_connection(path):
+def get_connection(path, DB_NAME):
     params = __get_params(path)
     connection = pymysql.connect(host = params[0], user = params[1], password = params[2], port = params[3], db = DB_NAME)
     return connection
 
 
-def insert_data(cursor, info_dict):
+def insert_course_data(cursor, info_dict):
     sql = "INSERT INTO Course(cID, cName, credits, campus, department, term,\
     division, prerequisites, exclusion, br, lecNum, lecTime, instructor,\
     location, size, currentEnrollment) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -69,6 +67,9 @@ def insert_data(cursor, info_dict):
         cursor.execute(sql, (cID, cName, credits, campus, department, term,\
             division, prerequisites, exclusion, br, lecNum_list[i], lecTime_list[i],\
             instructor_list[i], location_list[i], size_list[i], currentEnrollment_list[i]))
+
+def insert_eval_data(cursor, eval_info):
+    pass
 
 
 def commit_data(connection):
