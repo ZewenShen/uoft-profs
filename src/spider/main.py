@@ -1,9 +1,11 @@
-import Database
+from Database import *
 import json
 import requests
 import re
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
+
+DB_PATH = '../../database.info'
 
 BASE_URL = 'http://coursefinder.utoronto.ca/course-search/search/courseSearch/course/search?'
 DETAIL_BASE_URL = 'http://coursefinder.utoronto.ca/course-search/search/courseInquiry?methodToCall=start&viewId=CourseDetails-InquiryView&courseId='
@@ -20,6 +22,8 @@ all_courses_params = {
     'campusParam': 'St. George,Scarborough,Mississaga'
 }
 
+COMMIT_BUFFER = 15
+
 def get_all_courses_json():
     url = BASE_URL + urlencode(all_courses_params)
     session = requests.session()
@@ -28,6 +32,8 @@ def get_all_courses_json():
         r = session.get(url, headers=headers) 
         if r.status_code == 200:
             return r.json()
+        else:
+            print('Error:', r.status_code)
     except requests.ConnectionError as e:
         print('Error', e.args)
         return None
@@ -45,15 +51,18 @@ def parse_json(json):
         info_dict['department'] = course[5].strip(' ')
         info_dict['term'] = course[6]
         info_dict['division'] = course[7].strip(' ')
-        print(info_dict)
+        
+        yield info_dict
 
 def get_course_detail(url):
     try:
         r = requests.get(url, headers = headers)
         if r.status_code == 200:
             return r.text
+        else:
+            print('Error:', r.status_code)
     except requests.ConnectionError as e:
-        print('Error', e.args)
+        print('Error: ', e.args)
         return None
 
 def parse_course_detail(html):
@@ -76,5 +85,19 @@ def parse_course_detail(html):
             }
 
 
+if __name__ == '__main__':
+    init_db(DB_PATH)
 
+    connection = get_connection(DB_PATH)
+    cursor = connection.cursor()
+
+    count = 0 
+    for course_dict in parse_json(get_all_courses_json()):
+        insert_data(cursor, course_dict)
+        count += 1
+        if count == COMMIT_BUFFER:
+            commit_data(connection)
+            count = 0
+    
+    connection.close()
 

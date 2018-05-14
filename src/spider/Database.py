@@ -2,7 +2,7 @@ import pymysql
 
 DB_NAME = 'uoft-courses'
 
-def get_params(path):
+def __get_params(path):
     f = open(path, 'r')
     params = f.readlines()
     f.close()
@@ -12,7 +12,7 @@ def get_params(path):
 
 
 def init_db(path): # Should be called when this project is executed first time
-    params = get_params(path)
+    params = __get_params(path)
     connection = pymysql.connect(host = params[0], user = params[1], password = params[2], port = params[3])
     cursor = connection.cursor()
     sql = "CREATE DATABASE {} DEFAULT CHARACTER SET utf8".format(DB_NAME)
@@ -33,7 +33,7 @@ def init_db(path): # Should be called when this project is executed first time
 
 
 def get_connection(path):
-    params = get_params(path)
+    params = __get_params(path)
     connection = pymysql.connect(host = params[0], user = params[1], password = params[2], port = params[3], db = DB_NAME)
     return connection
 
