@@ -59,15 +59,21 @@ def get_course_detail(url):
 
 def parse_course_detail(html):
     soup = BeautifulSoup(html, 'lxml')
-    taglist = soup.find_all('span', attrs = {'id': re.compile("^u2(45|54|63|72|81|90)_line\d$")})
+    prerequisites = soup.find_all('span', attrs = {'id': "u50"})
+    exclusion = soup.find_all('span', attrs = {'id': 'u68'})
+    br = soup.find_all('span', attrs = {'id': 'u122'})
+    table = soup.find_all('span', attrs = {'id': re.compile("^u2(45|54|63|72|81|90)_line\d$")})
     clean_pattern = re.compile(' \n|\n|\r')
     return {
-            "lecNum": [re.sub(clean_pattern, '', taglist[6 * i].getText()) for i in range(len(taglist) // 6)],
-            "lecTime": [re.sub(clean_pattern, '', taglist[1 + 6 * i].getText()) for i in range(len(taglist) // 6)],
-            "instructor": [re.sub(clean_pattern, '', taglist[2 + 6 * i].getText()) for i in range(len(taglist) // 6)],
-            "location": [re.sub(clean_pattern, '', taglist[3 + 6 * i].getText()) for i in range(len(taglist) // 6)],
-            "size": [re.sub(clean_pattern, '', taglist[4 + 6 * i].getText()) for i in range(len(taglist) // 6)],
-            "currentEnrollment": [re.sub(clean_pattern, '', taglist[5 + 6 * i].getText()) for i in range(len(taglist) // 6)]
+            "prerequisites": [item.getText().strip('\r\n') for item in prerequisites],
+            "exclusion": [item.getText().strip('\r\n') for item in exclusion],
+            "br": [item.getText().strip('\r\n') for item in br],
+            "lecNum": [re.sub(clean_pattern, '', table[6 * i].getText()) for i in range(len(table) // 6)],
+            "lecTime": [re.sub(clean_pattern, '', table[1 + 6 * i].getText()) for i in range(len(table) // 6)],
+            "instructor": [re.sub(clean_pattern, '', table[2 + 6 * i].getText()) for i in range(len(table) // 6)],
+            "location": [re.sub(clean_pattern, '', table[3 + 6 * i].getText()) for i in range(len(table) // 6)],
+            "size": [re.sub(clean_pattern, '', table[4 + 6 * i].getText()) for i in range(len(table) // 6)],
+            "currentEnrollment": [re.sub(clean_pattern, '', table[5 + 6 * i].getText()) for i in range(len(table) // 6)]
             }
 
 
