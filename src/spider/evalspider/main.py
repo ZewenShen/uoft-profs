@@ -8,10 +8,12 @@ from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 from xml.etree.ElementTree import fromstring
 
-DB_NAME = 'uoftevals'
+DB_NAME = 'uoftcourses'
 DB_PATH = '../../../database.info'
 PAGE_SIZE = 50
 LEC_NUM_LENGTH = 4
+TOTAL_EVAL_DATA = 18075
+COMMIT_BUFFER = 15
 
 BASE_URL = 'https://course-evals.utoronto.ca/BPI/fbview-WebService.asmx/getFbvGrid'
 
@@ -60,7 +62,9 @@ def clean_course_evals(xml_string):
     
     cleaned_eval_data_list = []
     for tr_tag in tr_taglist:
-        cleaned_eval_data_list.append(extract_eval_data(tr_tag))
+        data = extract_eval_data(tr_tag)
+        if data is not None:
+            cleaned_eval_data_list.append(data)
     
     return cleaned_eval_data_list
 
@@ -68,12 +72,16 @@ def extract_eval_data(tr_tag):
     td_taglist = tr_tag.find_all('td')
 
     uncleaned_course_info = td_taglist[1].getText() # e.g., 'Human Embroyology ANA301H1-S-LEC0101'
-    __search_result = re.search(' -?([A-Z0-9]+?-(\w-)?[^\s]*) ?', uncleaned_course_info)
-    uncleaned_courseID = __search_result.group(1) # e.g., "ANA201H1-S-LEC0101"
-    lecNum = "Lec " + uncleaned_courseID[len(uncleaned_courseID) - LEC_NUM_LENGTH:] # use 'Lec' instead of 'LEC' here to sync with Course database table
-    cID = uncleaned_courseID.split('-')[0]
-    season = uncleaned_courseID.split('-')[1]
-    cName = uncleaned_course_info[: __search_result.span()[0]]
+    try:
+        __search_result = re.search(' -?([A-Z0-9]+?-(\w-)?[^\s]*) ?', uncleaned_course_info)
+        uncleaned_courseID = __search_result.group(1) # e.g., "ANA201H1-S-LEC0101"
+        lecNum = "Lec " + uncleaned_courseID[len(uncleaned_courseID) - LEC_NUM_LENGTH:] # use 'Lec' instead of 'LEC' here to sync with Course database table
+        cID = uncleaned_courseID.split('-')[0]
+        season = uncleaned_courseID.split('-')[1]
+        cName = uncleaned_course_info[: __search_result.span()[0]]
+    except AttributeError as e:
+        print("Error when extracting eval data:", e.args)
+        return None
 
     return {
         "department": td_taglist[0].getText(),
@@ -96,4 +104,22 @@ def extract_eval_data(tr_tag):
         "numInvited": td_taglist[15].getText(),
         "numResponded": td_taglist[16].getText()
     }
+
+if __name__ == '__main__':
+    connection = Database.get_connection(DB_PATH, DB_NAME)
+    cursor = connection.cursor()
+
+    Buffer = 0
+    count = 0
+    for i in range(1, TOTAL_EVAL_DATA // PAGE_SIZE + 1):
+        for row in clean_course_evals(get_course_evals(i)):
+            Database.insert_eval_data(cursor, row)
+            count += 1
+            Buffer += 1
+            if Buffer == COMMIT_BUFFER:
+                print("{}th time insert eval data successfully".format(count))
+                Database.commit_data(connection)
+                Buffer = 0
+
+    connection.close()
 

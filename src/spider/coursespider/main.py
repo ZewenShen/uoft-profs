@@ -109,7 +109,7 @@ if __name__ == '__main__':
         count += 1
         Buffer += 1
         if Buffer == COMMIT_BUFFER:
-            print("{}th time insert successfully".format(count))
+            print("{}th time insert course data successfully".format(count))
             Database.commit_data(connection)
             Buffer = 0
     
