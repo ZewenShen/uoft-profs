@@ -41,5 +41,14 @@ password: password of the user
 
 port: the port number that the SQL server is listening to
 
-#### Example:
+##### Example:
+```shell
+cat database.info
+127.0.0.1
+root
+123456
+3306
+```
+
+#### Demo:
 ![database](https://github.com/Walden-Shen/uoft-courses/blob/master/img/database_example.png?raw=true)
