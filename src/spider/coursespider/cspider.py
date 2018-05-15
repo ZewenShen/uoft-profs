@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 
 DB_NAME = 'uoftcourses'
-DB_PATH = '../../../database.info'
+DB_PATH = '../../database.info'
 
 BASE_URL = 'http://coursefinder.utoronto.ca/course-search/search/courseSearch/course/search?'
 DETAIL_BASE_URL = 'http://coursefinder.utoronto.ca/course-search/search/courseInquiry?methodToCall=start&viewId=CourseDetails-InquiryView&courseId='
@@ -95,10 +95,7 @@ def parse_course_detail(html):
             # cannot apply int to it.
             }
 
-
-if __name__ == '__main__':
-    Database.init_db(DB_PATH, DB_NAME)
-
+def main():
     connection = Database.get_connection(DB_PATH, DB_NAME)
     cursor = connection.cursor()
 
@@ -115,3 +112,6 @@ if __name__ == '__main__':
     
     connection.close()
 
+if __name__ == '__main__':
+    DB_PATH = '../../../database.info'
+    main()

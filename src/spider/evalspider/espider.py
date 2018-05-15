@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from xml.etree.ElementTree import fromstring
 
 DB_NAME = 'uoftcourses'
-DB_PATH = '../../../database.info'
+DB_PATH = '../../database.info'
 PAGE_SIZE = 50
 LEC_NUM_LENGTH = 4
 TOTAL_EVAL_DATA = 18075
@@ -77,7 +77,7 @@ def extract_eval_data(tr_tag):
         uncleaned_courseID = __search_result.group(1) # e.g., "ANA201H1-S-LEC0101"
         lecNum = "Lec " + uncleaned_courseID[len(uncleaned_courseID) - LEC_NUM_LENGTH:] # use 'Lec' instead of 'LEC' here to sync with Course database table
         cID = uncleaned_courseID.split('-')[0]
-        season = uncleaned_courseID.split('-')[1]
+        season = uncleaned_courseID.split('-')[1] if len(uncleaned_courseID.split('-')) == 3 else ''
         cName = uncleaned_course_info[: __search_result.span()[0]]
     except AttributeError as e:
         print("Error when extracting eval data:", e.args)
@@ -89,7 +89,7 @@ def extract_eval_data(tr_tag):
         "cName": cName,
         "lecNum": lecNum, 
         "campus": "St. George",
-        "term": "{} {} {}".format(td_taglist[5].getText(), td_taglist[4].getText(), season),
+        "term": "{} {} {}".format(td_taglist[5].getText(), td_taglist[4].getText(), season) if season != '' else "{} {}".format(td_taglist[5].getText(), td_taglist[4].getText()),
         "instructor": "{} {}".format(td_taglist[3].getText()[0], td_taglist[2].getText()), # the instructor column in Course database table only have initial first name instead of full name
         "instructorFullName": "{} {}".format(td_taglist[3].getText(), td_taglist[2].getText()),
         "intellectuallySimulating": td_taglist[6].getText(),
@@ -105,7 +105,7 @@ def extract_eval_data(tr_tag):
         "numResponded": td_taglist[16].getText()
     }
 
-if __name__ == '__main__':
+def main():
     connection = Database.get_connection(DB_PATH, DB_NAME)
     cursor = connection.cursor()
 
@@ -120,6 +120,10 @@ if __name__ == '__main__':
                 print("{}th time insert eval data successfully".format(count))
                 Database.commit_data(connection)
                 Buffer = 0
-
     connection.close()
 
+if __name__ == '__main__':
+    DB_PATH = '../../../database.info' # this should be changed only when "python3
+    # espider.py" is called. In the case that espider.main() is called by other
+    # file, the DBpath shouldn't be changed
+    main()
