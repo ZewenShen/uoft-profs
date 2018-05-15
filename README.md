@@ -11,6 +11,7 @@ This library intends to offer course selection advice to students at UofT, e.g.,
 ## Table of Contents
 - [Requirements](#requirements)
 - [Library Reference](#library-reference)
+	- [Spider](#spider)
 	- [CourseSpider](#coursespider)
 	- [EvalSpider](#evalspider)
 
@@ -22,16 +23,22 @@ This library intends to offer course selection advice to students at UofT, e.g.,
 
 ## Library Reference
 
-### CourseSpider
+### Spider
 ```shell
 echo "host\nuser\npasssword\nport" > database.info
-cd src/spider/coursespider/ 
+cd src/spider/
 python3 main.py 
 ```
-Then all the data of courses currently offered at UofT will be sent to the given database, in table "Course" of the new created database "uoftcourses"
+Then all the data of courses currently offered at UofT & all the evaluation data will be sent to the given database. Courses' data is in table "Course" and evaluation data is in table "Eval". The two tables are both under the new created database "uoftcourses"
 
-#### Schema of the table:
-Course(<u>cID</u>, cName, credits, campus, department, <u>term</u>, division, prerequisites, exclusion, br, <u>lecNum</u>, lecTime, instructor, location, size, currentEnrollment)
+#### database.info Example:
+```shell
+cat database.info
+127.0.0.1
+root
+123456
+3306
+```
 
 #### Note:
 host: ip address of the SQL server
@@ -42,19 +49,40 @@ password: password of the user
 
 port: the port number that the SQL server is listening to
 
-##### Example:
+### CourseSpider
+
 ```shell
-cat database.info
-127.0.0.1
-root
-123456
-3306
+echo "host\nuser\npasssword\nport" > database.info
+cd src/spider/coursespider/
+python3 cspider.py 
 ```
 
+Use this if you only need course data.
+
+#### Data source:
+[Course Finder](http://coursefinder.utoronto.ca)
+
+#### Schema of the table Course:
+Course(<u>cID</u>, cName, credits, campus, department, <u>term</u>, division, prerequisites, exclusion, br, <u>lecNum</u>, lecTime, instructor, location, size, currentEnrollment)
+
 #### Demo:
-![database](https://github.com/Walden-Shen/uoft-courses/blob/master/img/database_example.png?raw=true)
+![courseTable](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/course_table_example.png?raw=true)
 
 ### EvalSpider
 
+```shell
+echo "host\nuser\npasssword\nport" > database.info
+cd src/spider/evalspider/
+python3 espider.py 
+```
+
+Use this if you only need course evaluation data.
+
+#### Data source:
+[Faculty of Arts & Science Course Evaluations](https://course-evals.utoronto.ca/BPI/fbview.aspx?blockid=seipDRPeug8Eu)
+
 #### Schema of the table:
 Eval(department, <u>cID</u>, <u>cName</u>, <u>lecNum</u>, campus, term, instructor, <u>instructorFullName</u>, intellectuallySimulating, deeperUnderstanding, courseAtmosphere, homeworkQuality, homeworkFairness, overallQuality, enthusiasm, workload, recommend, numInvited, numResponded)
+
+#### Demo:
+![evalTable](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/eval_table_example.png?raw=true)
