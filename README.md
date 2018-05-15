@@ -12,6 +12,7 @@ This library intends to offer course selection advice to students at UofT, e.g.,
 - [Requirements](#requirements)
 - [Library Reference](#library-reference)
 	- [CourseSpider](#coursespider)
+	- [EvalSpider](#evalspider)
 
 ## Requirements
  - [python3](https://www.python.org/downloads/release/python-352/)
@@ -52,3 +53,8 @@ root
 
 #### Demo:
 ![database](https://github.com/Walden-Shen/uoft-courses/blob/master/img/database_example.png?raw=true)
+
+### EvalSpider
+
+#### Schema of the table:
+Eval(department, <u>cID</u>, <u>cName</u>, <u>lecNum</u>, campus, term, instructor, <u>instructorFullName</u>, intellectuallySimulating, deeperUnderstanding, courseAtmosphere, homeworkQuality, homeworkFairness, overallQuality, enthusiasm, workload, recommend, numInvited, numResponded)

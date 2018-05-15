@@ -14,11 +14,10 @@ def init_db(path, DB_NAME): # Should be called when this project is executed fir
     connection = pymysql.connect(host = params[0], user = params[1], password = params[2], port = params[3])
     cursor = connection.cursor()
     create_db_sql = "CREATE DATABASE {} DEFAULT CHARACTER SET utf8".format(DB_NAME)
-    #cursor.execute(create_db_sql)
+    cursor.execute(create_db_sql)
 
     connection.select_db(DB_NAME)
 
-    """
     create_course_table_sql = "CREATE TABLE IF NOT EXISTS Course (cID VARCHAR(30) NOT NULL, cName\
     VARCHAR(300) NOT NULL, credits FLOAT NOT NULL, campus VARCHAR(150) NOT NULL,\
     department VARCHAR(160) NOT NULL, term VARCHAR(150) NOT NULL, division\
@@ -27,7 +26,6 @@ def init_db(path, DB_NAME): # Should be called when this project is executed fir
     NULL, instructor VARCHAR(500), location VARCHAR(250), size INT(5),\
     currentEnrollment INT(5), PRIMARY KEY (cID, term, lecNum))"
     cursor.execute(create_course_table_sql)
-    """
 
     create_eval_table_sql = "CREATE TABLE IF NOT EXISTS Eval (department\
     VARCHAR(160) NOT NULL, cID VARCHAR(30) NOT NULL, cName VARCHAR(300) NOT\
