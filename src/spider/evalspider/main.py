@@ -10,7 +10,8 @@ from xml.etree.ElementTree import fromstring
 
 DB_NAME = 'uoftevals'
 DB_PATH = '../../../database.info'
-PAGE_SIZE = 1
+PAGE_SIZE = 50
+LEC_NUM_LENGTH = 4
 
 BASE_URL = 'https://course-evals.utoronto.ca/BPI/fbview-WebService.asmx/getFbvGrid'
 
@@ -56,52 +57,26 @@ def clean_course_evals(xml_string):
     soup = BeautifulSoup(eval_data_in_xml.text, 'lxml')
     
     tr_taglist = soup.find_all('tr', attrs={'class': 'gData'})
-    taglist = soup.find_all('td')
+    
+    cleaned_eval_data_list = []
+    for tr_tag in tr_taglist:
+        cleaned_eval_data_list.append(extract_eval_data(tr_tag))
+    
+    return cleaned_eval_data_list
 
-    uncleaned_course_info = taglist[1].getText() # e.g., 'Human Embroyology ANA301H1-SLEC0101'
-    __split_index = uncleaned_course_info.rfind(' ') + 1
-    uncleaned_courseID = uncleaned_course_info[__split_index:] # e.g., "ANA201H1-S-LEC0101"
-    lecNum = "Lec " + re.search("-LEC(\d{4})$", uncleaned_courseID).group(1) # use 'Lec' instead of 'LEC' here to sync with Course database table
+def extract_eval_data(tr_tag):
+    td_taglist = tr_tag.find_all('td')
+
+    uncleaned_course_info = td_taglist[1].getText() # e.g., 'Human Embroyology ANA301H1-S-LEC0101'
+    __search_result = re.search(' -?([A-Z0-9]+?-(\w-)?[^\s]*) ?', uncleaned_course_info)
+    uncleaned_courseID = __search_result.group(1) # e.g., "ANA201H1-S-LEC0101"
+    lecNum = "Lec " + uncleaned_courseID[len(uncleaned_courseID) - LEC_NUM_LENGTH:] # use 'Lec' instead of 'LEC' here to sync with Course database table
     cID = uncleaned_courseID.split('-')[0]
     season = uncleaned_courseID.split('-')[1]
-    cName = uncleaned_course_info[: __split_index]
+    cName = uncleaned_course_info[: __search_result.span()[0]]
 
     return {
-        "department": taglist[0].getText(),
-        "cID": cID,
-        "cName": cName,
-        "lecNum": lecNum, 
-        "campus": "St. George",
-        "term": "{} {} {}".format(taglist[5].getText(), taglist[4].getText(), season),
-        "instructor": "{} {}".format(taglist[3].getText()[0], taglist[2].getText()), # the instructor column in Course database table only have initial first name instead of full name
-        "instructorFullName": "{} {}".format(taglist[3].getText(), taglist[2].getText()),
-        "intellectuallySimulating": taglist[6].getText(),
-        "deeperUnderstanding": taglist[7].getText(),
-        "courseAtmosphere": taglist[8].getText(),
-        "homeworkQuality": taglist[9].getText(),
-        "homeworkFairness": taglist[10].getText(),
-        "overallQuality": taglist[11].getText(),
-        "enthusiasm": taglist[12].getText(),
-        "workload": taglist[13].getText(),
-        "recommend": taglist[14].getText(),
-        "numInvited": taglist[15].getText(),
-        "numResponded": taglist[16].getText()
-    }
-
-
-def extract_one_course(tr_taglist):
-    td_taglist = tr_taglist.find_all('td')
-
-    uncleaned_course_info = td_taglist[1].getText() # e.g., 'Human Embroyology ANA301H1-SLEC0101'
-    __split_index = uncleaned_course_info.rfind(' ') + 1
-    uncleaned_courseID = uncleaned_course_info[__split_index:] # e.g., "ANA201H1-S-LEC0101"
-    lecNum = "Lec " + re.search("-LEC(\d{4})$", uncleaned_courseID).group(1) # use 'Lec' instead of 'LEC' here to sync with Course database table
-    cID = uncleaned_courseID.split('-')[0]
-    season = uncleaned_courseID.split('-')[1]
-    cName = uncleaned_course_info[: __split_index]
-
-    return {
-        "department": taglist[0].getText(),
+        "department": td_taglist[0].getText(),
         "cID": cID,
         "cName": cName,
         "lecNum": lecNum, 
