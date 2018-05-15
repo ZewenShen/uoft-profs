@@ -87,6 +87,9 @@ def insert_eval_data(cursor, info_dict):
         numInvited, numResponded) values (%s, %s, %s, %s, %s, %s, %s, %s, %s,\
         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
+    info_dict = {k: (lambda x: None if x == 'N/A' else x)(v) for k, v in info_dict.items()} 
+    # clean data in info_dict (since N/A may appear, which can't be recognized by sql.)
+
     department = info_dict['department']
     cID = info_dict['cID']
     cName = info_dict['cName']
@@ -95,15 +98,15 @@ def insert_eval_data(cursor, info_dict):
     term = info_dict['term']
     instructor = info_dict['instructor']
     instructorFullName = info_dict['instructorFullName']
-    intellectuallySimulating = None if info_dict['intellectuallySimulating'] == 'N/A' else info_dict['intellectuallySimulating']
-    deeperUnderstanding = None if info_dict['deeperUnderstanding'] == 'N/A' else info_dict['deeperUnderstanding']
-    courseAtmosphere = None if info_dict['courseAtmosphere'] == 'N/A' else info_dict['courseAtmosphere']
-    homeworkQuality = None if info_dict['homeworkQuality'] == 'N/A' else info_dict['homeworkQuality']
-    homeworkFairness = None if info_dict['homeworkFairness'] == 'N/A' else info_dict['homeworkFairness']
-    overallQuality = None if info_dict['overallQuality'] == 'N/A' else info_dict['overallQuality']
-    enthusiasm = None if info_dict['enthusiasm'] == 'N/A' else info_dict['enthusiasm']
-    workload = None if info_dict['workload'] == 'N/A' else info_dict['workload']
-    recommend = None if info_dict['recommend'] == 'N/A' else info_dict['recommend']
+    intellectuallySimulating = info_dict['intellectuallySimulating']
+    deeperUnderstanding = info_dict['deeperUnderstanding']
+    courseAtmosphere = info_dict['courseAtmosphere']
+    homeworkQuality = info_dict['homeworkQuality']
+    homeworkFairness = info_dict['homeworkFairness']
+    overallQuality = info_dict['overallQuality']
+    enthusiasm = info_dict['enthusiasm']
+    workload = info_dict['workload']
+    recommend = info_dict['recommend']
     numInvited = info_dict['numInvited']
     numResponded = info_dict['numResponded']
 
