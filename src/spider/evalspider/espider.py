@@ -7,6 +7,7 @@ import re
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 from xml.etree.ElementTree import fromstring
+from functools import reduce
 
 DB_NAME = 'uoftcourses'
 DB_PATH = '../../database.info'
@@ -89,7 +90,7 @@ def extract_eval_data(tr_tag):
 
     uncleaned_course_info = td_taglist[1].getText() # e.g., 'Human Embroyology ANA301H1-S-LEC0101'
     try:
-        __search_result = re.search(' -?([A-Z0-9]+? ?-(\w ?-)?[^\s]*) ?', uncleaned_course_info)
+        __search_result = re.search(' -?([A-Z0-9]+? ?-(\w ?-)? ?[^\s]*) ?', uncleaned_course_info)
         uncleaned_courseID = __search_result.group(1) # e.g., "ANA201H1-S-LEC0101"
         lecNum = "Lec " + uncleaned_courseID[len(uncleaned_courseID) - LEC_NUM_LENGTH:] # use 'Lec' instead of 'LEC' here to sync with Course database table
         cID = uncleaned_courseID.split('-')[0]
@@ -136,6 +137,7 @@ def main():
                 print("{}th time insert eval data successfully".format(count))
                 Database.commit_data(connection)
                 Buffer = 0
+    Database.commit_data(connection)
     connection.close()
 
 if __name__ == '__main__':

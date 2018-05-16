@@ -131,7 +131,8 @@ def main():
             print("{}th time insert course data successfully".format(count))
             Database.commit_data(connection)
             Buffer = 0
-    
+
+    Database.commit_data(connection)
     connection.close()
 
 if __name__ == '__main__':
