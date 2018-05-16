@@ -87,7 +87,7 @@ def insert_eval_data(cursor, info_dict):
         numInvited, numResponded) values (%s, %s, %s, %s, %s, %s, %s, %s, %s,\
         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-    info_dict = {k: (lambda x: None if x == 'N/A' else x)(v) for k, v in info_dict.items()} 
+    info_dict = {k: (lambda x: None if x == 'N/A' or x == 'NRP' else x)(v) for k, v in info_dict.items()} 
     # clean data in info_dict (since N/A may appear, which can't be recognized by sql.)
 
     department = info_dict['department']
@@ -112,11 +112,14 @@ def insert_eval_data(cursor, info_dict):
 
     print(cID)
 
-    cursor.execute(sql, (department, cID, cName, lecNum, campus, term,\
-        instructor, instructorFullName, intellectuallySimulating,\
-        deeperUnderstanding, courseAtmosphere, homeworkQuality,\
-        homeworkFairness, overallQuality, enthusiasm, workload, recommend,\
-        numInvited, numResponded))
+    try:
+        cursor.execute(sql, (department, cID, cName, lecNum, campus, term,\
+            instructor, instructorFullName, intellectuallySimulating,\
+            deeperUnderstanding, courseAtmosphere, homeworkQuality,\
+            homeworkFairness, overallQuality, enthusiasm, workload, recommend,\
+            numInvited, numResponded))
+    except pymysql.err.IntegrityError as e:
+        print("error due to the crappy data source:", e.args)
 
 
 def commit_data(connection):
