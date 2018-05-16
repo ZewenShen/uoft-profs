@@ -30,4 +30,7 @@ class TestClass():
         
     def test_no_time_conflict_5(self):
         assert not time_conflicts_check.no_time_conflict("MONDAY 18:00-20:00", "MONDAY 19:00-20:00")
+        
+    def test_no_time_conflict_6(self):
+        assert time_conflicts_check.no_time_conflict("MONDAY 12:00-14:00 MONDAY 12:00-13:00", "TUESDAY 9:00-10:00")
     
