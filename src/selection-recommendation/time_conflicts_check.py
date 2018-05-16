@@ -15,7 +15,7 @@ def time_to_num(time):
     time_comps = time.split(":")
     if int(time_comps[1]) == 0:
         return int(time_comps[0])
-    return(int(time_comps[0]) + int(time_comps[1])/60)
+    return int(time_comps[0]) + int(time_comps[1])/60
 
 
 def process_times(times):

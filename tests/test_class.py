@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../src/selection-recommendation")
 import time_conflicts_check
 
 class TestClass():
