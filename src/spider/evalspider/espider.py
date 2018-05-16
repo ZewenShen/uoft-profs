@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../util/')
+sys.path.append('../../util/')
 import Database
 import json
 import requests

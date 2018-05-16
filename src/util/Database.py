@@ -125,3 +125,18 @@ def commit_data(connection):
     except:
         connection.rollback()
 
+def get_course_data_by_cID_and_campus(cursor, cID, campus):
+    """
+    cursor: the cursor of our connection.
+    course_code: a string, e.g., "CSC148"
+    campus: a string - either "St. George", "Scarborough", or "Mississauga"
+    -------------------------------------------------------
+    Returns a list of tuples, with each tuple containing the data of a single
+    section of the specified course
+    -------------------------------------------------------
+    We use cursor here to avoid unnecessary connections with database.
+    """
+    sql = "SELECT * FROM Course Where cID like %s And campus = %s"
+    cursor.execute(sql, ("%{}%".format(cID), campus))
+
+    return list(cursor.fetchall())
