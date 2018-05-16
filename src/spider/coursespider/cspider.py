@@ -28,6 +28,10 @@ all_courses_params = {
 COMMIT_BUFFER = 15
 
 def get_all_courses_json():
+    """
+    Use the following url, you can get information of all the courses currently
+    offered in json form at once.
+    """
     url = BASE_URL + urlencode(all_courses_params)
     session = requests.session()
     try:
@@ -42,6 +46,12 @@ def get_all_courses_json():
         return None
 
 def parse_json(json):
+    """
+    The json file contains all thousands of entries, each of them are one course.
+    We enter the detailed page of each course, which contains the time
+    arrangement, prof, etc of that course, and collect them first. Then we enter
+    other information of this course into the directory.
+    """
     for course in json['aaData']:
         detail_url = re.search("coursedetails/(.*?)'>", course[1]).group(1)
         url = DETAIL_BASE_URL + detail_url
@@ -58,6 +68,10 @@ def parse_json(json):
         yield info_dict
 
 def get_course_detail(url):
+    """
+    A trivial helper function which returns the static page of one course's
+    detailed information, e.g., time arrangement, profs, etc.
+    """
     try:
         r = requests.get(url, headers = headers)
         if r.status_code == 200:
@@ -69,6 +83,10 @@ def get_course_detail(url):
         return None
 
 def parse_course_detail(html):
+    """
+    Use beautifulsoup to get detailed information of one course, then put them
+    in a dictionary.
+    """
     soup = BeautifulSoup(html, 'lxml')
     prerequisites = soup.find('span', attrs = {'id': "u50"})
     exclusion = soup.find('span', attrs = {'id': 'u68'})
@@ -102,7 +120,11 @@ def main():
     Buffer = 0 
     count = 0
     for course_dict in parse_json(get_all_courses_json()):
-        Database.insert_course_data(cursor, course_dict)
+        try:
+            Database.insert_course_data(cursor, course_dict)
+        except:
+            print("error when inserting {}".format(course_dict))
+            continue
         count += 1
         Buffer += 1
         if Buffer == COMMIT_BUFFER:

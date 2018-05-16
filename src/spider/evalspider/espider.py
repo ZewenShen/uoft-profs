@@ -42,6 +42,13 @@ payload = {
 }
 
 def get_course_evals(pageActuelle):
+    """
+    pageActuelle: int 
+    Represents the number of page you want to scrape.
+    ----------------------------------------------
+    This method will return a string which is in xml form, comprising all the
+    eval information.
+    """
     payload["pageActuelle"] = pageActuelle
     
     try:
@@ -54,6 +61,12 @@ def get_course_evals(pageActuelle):
         print('Error', e.args)
 
 def clean_course_evals(xml_string):
+    """
+    xml_string: str 
+    A string in xml form comprising lots of course eval information.
+    --------------------------------------------------------------------
+    Use helper function "extract_eval_data" to clean courses eval data one by one.
+    """
     tree = fromstring(xml_string) # turn the xmlstring into real xml structure
     eval_data_in_xml = tree[0] # the eval data we need is in index 0
     soup = BeautifulSoup(eval_data_in_xml.text, 'lxml')
@@ -69,18 +82,21 @@ def clean_course_evals(xml_string):
     return cleaned_eval_data_list
 
 def extract_eval_data(tr_tag):
+    """
+    For further information, please read the codes & comments. It's clear.
+    """
     td_taglist = tr_tag.find_all('td')
 
     uncleaned_course_info = td_taglist[1].getText() # e.g., 'Human Embroyology ANA301H1-S-LEC0101'
     try:
-        __search_result = re.search(' -?([A-Z0-9]+?-(\w-)?[^\s]*) ?', uncleaned_course_info)
+        __search_result = re.search(' -?([A-Z0-9]+? ?-(\w ?-)?[^\s]*) ?', uncleaned_course_info)
         uncleaned_courseID = __search_result.group(1) # e.g., "ANA201H1-S-LEC0101"
         lecNum = "Lec " + uncleaned_courseID[len(uncleaned_courseID) - LEC_NUM_LENGTH:] # use 'Lec' instead of 'LEC' here to sync with Course database table
         cID = uncleaned_courseID.split('-')[0]
         season = uncleaned_courseID.split('-')[1] if len(uncleaned_courseID.split('-')) == 3 else ''
         cName = uncleaned_course_info[: __search_result.span()[0]]
     except AttributeError as e:
-        print("Error when extracting eval data:", e.args)
+        print("Error when extracting eval data from {}:".format(uncleaned_course_info), e.args)
         return None
 
     return {
