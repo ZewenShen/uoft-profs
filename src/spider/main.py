@@ -1,6 +1,6 @@
 import sys
-sys.path.append('./util')
-import util.Database as db
+sys.path.append('../util')
+import Database as db
 import coursespider.cspider as cs
 import evalspider.espider as es
 

@@ -20,12 +20,13 @@ This library intends to offer course selection advice to students at UofT, e.g.,
  - [beautifulsoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup)
  - [requests](http://docs.python-requests.org/en/master/user/install/)
  - [pymysql](https://github.com/PyMySQL/PyMySQL)
+ - [lxml](http://lxml.de/index.html#download)
 
 ## Library Reference
 
 ### Spider
 ```shell
-echo "host\nuser\npasssword\nport" > database.info
+echo -e "host\nuser\npasssword\nport" > database.info
 cd src/spider/
 python3 main.py 
 ```

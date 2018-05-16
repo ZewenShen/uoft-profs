@@ -24,7 +24,7 @@ def init_db(path, DB_NAME): # Should be called when this project is executed fir
     VARCHAR(200) NOT NULL, prerequisites VARCHAR(1000), exclusion VARCHAR(1000), br\
     VARCHAR(200), lecNum VARCHAR(30) NOT NULL, lecTime VARCHAR(125) NOT\
     NULL, instructor VARCHAR(500), location VARCHAR(250), size INT(5),\
-    currentEnrollment INT(5), PRIMARY KEY (cID, term, lecNum))"
+    currentEnrollment INT(5), PRIMARY KEY (cID, term, lecNum)) CHARACTER SET=utf8"
     cursor.execute(create_course_table_sql)
 
     create_eval_table_sql = "CREATE TABLE IF NOT EXISTS Eval (department\
@@ -35,7 +35,7 @@ def init_db(path, DB_NAME): # Should be called when this project is executed fir
     FLOAT(10), courseAtmosphere FLOAT(10), homeworkQuality FLOAT(10),\
     homeworkFairness FLOAT(10), overallQuality FLOAT(10), enthusiasm FLOAT(10),\
     workload FLOAT(10), recommend FLOAT(10), numInvited INT(10), numResponded\
-    INT(10), PRIMARY KEY (cID, term, lecNum, instructorFullName))"
+    INT(10), PRIMARY KEY (cID, term, lecNum, instructorFullName)) CHARACTER SET=utf8"
     cursor.execute(create_eval_table_sql)
 
     print("database intialized")
@@ -87,7 +87,7 @@ def insert_eval_data(cursor, info_dict):
         numInvited, numResponded) values (%s, %s, %s, %s, %s, %s, %s, %s, %s,\
         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-    info_dict = {k: (lambda x: None if x == 'N/A' else x)(v) for k, v in info_dict.items()} 
+    info_dict = {k: (lambda x: None if x == 'N/A' or x == 'NRP' else x)(v) for k, v in info_dict.items()} 
     # clean data in info_dict (since N/A may appear, which can't be recognized by sql.)
 
     department = info_dict['department']
@@ -111,12 +111,15 @@ def insert_eval_data(cursor, info_dict):
     numResponded = info_dict['numResponded']
 
     print(cID)
-    cursor.execute(sql, (department, cID, cName, lecNum, campus, term,\
-        instructor, instructorFullName, intellectuallySimulating,\
-        deeperUnderstanding, courseAtmosphere, homeworkQuality,\
-        homeworkFairness, overallQuality, enthusiasm, workload, recommend,\
-        numInvited, numResponded))
 
+    try:
+        cursor.execute(sql, (department, cID, cName, lecNum, campus, term,\
+            instructor, instructorFullName, intellectuallySimulating,\
+            deeperUnderstanding, courseAtmosphere, homeworkQuality,\
+            homeworkFairness, overallQuality, enthusiasm, workload, recommend,\
+            numInvited, numResponded))
+    except pymysql.err.IntegrityError as e:
+        print("error due to the crappy data source:", e.args)
 
 
 def commit_data(connection):
@@ -125,3 +128,18 @@ def commit_data(connection):
     except:
         connection.rollback()
 
+def get_course_data_by_cID_and_campus(cursor, cID, campus):
+    """
+    cursor: the cursor of our connection.
+    course_code: a string, e.g., "CSC148"
+    campus: a string - either "St. George", "Scarborough", or "Mississauga"
+    -------------------------------------------------------
+    Returns a list of tuples, with each tuple containing the data of a single
+    section of the specified course
+    -------------------------------------------------------
+    We use cursor here to avoid unnecessary connections with database.
+    """
+    sql = "SELECT * FROM Course Where cID like %s And campus = %s"
+    cursor.execute(sql, ("%{}%".format(cID), campus))
+
+    return list(cursor.fetchall())
