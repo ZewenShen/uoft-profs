@@ -7,22 +7,8 @@ import time_conflicts_check
 DB_NAME = "uoftcourses"
 DB_PATH = "../../database.info"
 
-"""
-def get_course_data(course_code, campus):
 
-    course_code: a string e.g. "CSC148"
-    campus: a string - either "St. George", "Scarborough", or "Mississauga"
-    Returns a list of tuples, with each tuple containing the data of a single section of the specified course
-
-    connection = Database.get_connection(DB_PATH, DB_NAME)
-    cursor = connection.cursor()
-    sql = "SELECT * FROM Course WHERE cID like %s AND campus=%s"
-    cursor.execute(sql, ("%" + course_code + "%", campus))
-
-    return(list(cursor.fetchall()))
-"""
-
-def get_all_possible_course_times(course_code, campus):
+def __get_all_possible_course_times(course_code, campus):
     """
     course_code: a string e.g. "CSC148"
     campus: a string - either "St. George", "Scarborough", or "Mississauga"
@@ -31,12 +17,22 @@ def get_all_possible_course_times(course_code, campus):
           For the format of the strings, see the process_times() function in the time_conflicts_check module
         - the second element is a list of strings representing the respective lecture, tutorial and lab sections
 
+    Sample outputs:
+
+        (['THURSDAY 13:00-16:00', 'THURSDAY 18:00-21:00'], ['CSC108 Lec 0101', 'CSC108 Lec 5101'])
+        Here, because the lists have length 2, there are two possible combinations of course sections. Each of these
+        combinations has only one section - a lecture.
+
+        (['FRIDAY 14:00-16:00 WEDNESDAY 14:00-16:00 MONDAY 14:00-16:00 MONDAY 16:00-18:00 WEDNESDAY 16:00-18:00'], ['APS105 Lec 0101 APS105 Lec 0101 APS105 Lec 0101 APS105 Tut 0101 APS105 Pra 0101'])
+        Here, because the lists have length 1, there is only one possible combination of course sections.
+        This combination consists of 3 lecture sections, 1 tutorial section, and 1 practical section.
+
     Note that the indices of the two lists correspond. For example, the first element of the first list has times that correspond
     to the class sections in the first element of the second list.
     """
     connection = Database.get_connection(DB_PATH, DB_NAME)
     cursor = connection.cursor()
-    all_course_data = Database.get_course_data_by_cID_and_campus(cursor, course_code, campus)  # I'm not sure if this is how you want me to use this function
+    all_course_data = Database.get_course_data_by_cID_and_campus(cursor, course_code, campus)
 
     lecture_times = []
     lecture_sections = []
@@ -80,7 +76,7 @@ def get_all_possible_course_times(course_code, campus):
                     and time_conflicts_check.no_time_conflict(all_times[i][0], all_times[i][2])
                     and time_conflicts_check.no_time_conflict(all_times[i][1], all_times[i][2])):
                 all_possible_times.append(" ".join(all_times[i]))
-                all_possible_section_combs.append(all_section_combs[i])
+                all_possible_section_combs.append(" ".join(all_section_combs[i]))
 
     # course has lab sections but no tutorial sections
     elif (tutorial_times == []) and (lab_times != []):
@@ -90,7 +86,7 @@ def get_all_possible_course_times(course_code, campus):
         for i in range(len(all_times)):
             if time_conflicts_check.no_time_conflict(all_times[i][0], all_times[i][1]):  # check for internal time conflicts
                 all_possible_times.append(" ".join(all_times[i]))
-                all_possible_section_combs.append(all_section_combs[i])
+                all_possible_section_combs.append(" ".join(all_section_combs[i]))
 
     # course has tutorial sections but no lab sections
     elif (tutorial_times != []) and (lab_times == []):
@@ -100,7 +96,7 @@ def get_all_possible_course_times(course_code, campus):
         for i in range(len(all_times)):
             if time_conflicts_check.no_time_conflict(all_times[i][0], all_times[i][1]):  # check for internal time conflicts
                 all_possible_times.append(" ".join(all_times[i]))
-                all_possible_section_combs.append(all_section_combs[i])
+                all_possible_section_combs.append(" ".join(all_section_combs[i]))
 
     # course only has lecture sections
     else:
@@ -114,7 +110,17 @@ def create_schedule(campus, *args):
     """
     campus: a string - either "St. George", "Scarborough", or "Mississauga"
     args: strings of course codes e.g. "CSC148", "COG250"
-    Returns a tuple identical in format to get_all_possible_course_times()
+    Returns a tuple:
+        - the first element is a list of strings containing all possible times (i.e. no conflicts) of combinations of course sections.
+          For the format of the strings, see the process_times() function in the time_conflicts_check module
+        - the second element is a list of strings representing the respective course sections
+
+    Sample output:
+
+        (['MONDAY 18:00-20:00 THURSDAY 18:00-21:00 TUESDAY 18:00-21:00 WEDNESDAY 18:00-20:00'], ['CSC148 Lec 5101 CSC148 Lec 5101 CSC165 Lec 5101 CSC165 Lec 5101'])
+
+        Here, because the lists have length 1, there is only one possible combination of course sections. Note that the sections in the second list
+        are given in the same order as the times in the first list. The times and sections are all delimited by spaces.
 
     The output times and sections will be all the schedules comprised of a combination of sections from the input courses
     with no time conflicts. If no such combinations exist, the return value is a tuple of two empty lists.
@@ -125,7 +131,7 @@ def create_schedule(campus, *args):
     all_course_sections = []
 
     for course_code in args:
-        course_times, course_sections = get_all_possible_course_times(course_code, campus)
+        course_times, course_sections = __get_all_possible_course_times(course_code, campus)
         all_course_times.append(course_times)
         all_course_sections.append(course_sections)
 
@@ -180,10 +186,10 @@ def process_schedule(all_times, all_sections):
             "MONDAY 18:00-20:00 THURSDAY 18:00-21:00 TUESDAY 18:00-21:00 WEDNESDAY 18:00-20:00",
             "CSC148 Lec 5101 CSC148 Lec 5101 CSC165 Lec 5101 CSC165 Lec 5101")
         -> [
-               [None, None, None, None, None, None, None, None, None, None, CSC148 Lec 5101, CSC148 Lec 5101, None, None],
-               [None, None, None, None, None, None, None, None, None, None, CSC165 Lec 5101, CSC165 Lec 5101, CSC165 Lec 5101, None],
-               [None, None, None, None, None, None, None, None, None, None, CSC165 Lec 5101, CSC165 Lec 5101, None, None],
-               [None, None, None, None, None, None, None, None, None, None, CSC148 Lec 5101, CSC148 Lec 5101, CSC148 Lec 5101, None],
+               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', None, None],
+               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', 'CSC165 Lec 5101', None],
+               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', None, None],
+               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', 'CSC148 Lec 5101', None],
                [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
            ]
     """
@@ -204,3 +210,20 @@ def process_schedule(all_times, all_sections):
             week[day_to_int(times[2*i])][start + hour] = " ".join(sections[3*i:3*i + 3])
 
     return week
+
+
+def get_best_schedule(campus, *args):  # waiting for a finished cost function to use this functino
+    """
+    best_schedule = []
+    best_score = []
+    possible_schedules = create_schedule(campus, *args)
+
+    for i in range(len(possible_schedules[0])):
+        schedule = process_schedule(possible_schedules[0][i])
+        score =  # some sort of cost function
+        if score > best_score:
+            best_schedule = schedule
+            best_score = score
+
+    return best_schedule
+    """
