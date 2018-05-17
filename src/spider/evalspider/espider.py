@@ -15,6 +15,8 @@ PAGE_SIZE = 50
 LEC_NUM_LENGTH = 4
 TOTAL_EVAL_DATA = 18075
 COMMIT_BUFFER = 15
+clean_regex = '([A-Z]{3}\d{3}[A-Z]\d ?-( ?[A-Z] ?-)? ?[A-Z]{3}\d{4})'
+clean_pattern = re.compile(clean_regex)
 
 BASE_URL = 'https://course-evals.utoronto.ca/BPI/fbview-WebService.asmx/getFbvGrid'
 
@@ -88,10 +90,13 @@ def extract_eval_data(tr_tag):
     """
     td_taglist = tr_tag.find_all('td')
 
-    uncleaned_course_info = td_taglist[1].getText() # e.g., 'Human Embroyology ANA301H1-S-LEC0101'
+    uncleaned_course_info = td_taglist[1].getText() # e.g., 'Human Embroyology ANA301H1-S-LEC0101', 
+    #'Human Embroyology -ANA301H1-S-LEC0101', 
+    #'Human Embroyology ANA301H1 - S - LEC0101', 'Human Embroyology ANA301H1-LEC0101'
     try:
-        __search_result = re.search(' -?([A-Z0-9]+? ?-(\w ?-)? ?[^\s]*) ?', uncleaned_course_info)
+        __search_result = re.search(clean_pattern, uncleaned_course_info)
         uncleaned_courseID = __search_result.group(1) # e.g., "ANA201H1-S-LEC0101"
+        uncleaned_courseID = re.sub(' ', '', uncleaned_courseID)
         lecNum = "Lec " + uncleaned_courseID[len(uncleaned_courseID) - LEC_NUM_LENGTH:] # use 'Lec' instead of 'LEC' here to sync with Course database table
         cID = uncleaned_courseID.split('-')[0]
         season = uncleaned_courseID.split('-')[1] if len(uncleaned_courseID.split('-')) == 3 else ''
