@@ -7,7 +7,6 @@ import re
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 from xml.etree.ElementTree import fromstring
-from functools import reduce
 
 DB_NAME = 'uoftcourses'
 DB_PATH = '../../database.info'
