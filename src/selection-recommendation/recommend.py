@@ -3,6 +3,7 @@ sys.path.append("../util")
 import itertools
 import Database
 import time_conflicts_check
+import cost
 
 DB_NAME = "uoftcourses"
 DB_PATH = "../../database.info"
@@ -212,18 +213,129 @@ def process_schedule(all_times, all_sections):
     return week
 
 
-def get_best_schedule(campus, *args):  # waiting for a finished cost function to use this functino
+def print_schedule(schedule):
+    """
+    This is just a function to print the schedule in a more readable way.
+
+    schedule: a list of lists. This should be an output from a process_schedule() call.
+
+    e.g. print_schedule([
+               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', None, None],
+               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', 'CSC165 Lec 5101', None],
+               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', None, None],
+               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', 'CSC148 Lec 5101', None],
+               [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+           ])
+        prints the following to the terminal:
+     _______________________________________________________________________
+    |           | MONDAY    | TUESDAY   | WEDNESDAY | THURSDAY  | FRIDAY    |
+    |___________|___________|___________|___________|___________|___________|
+    | 8:00am    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 9:00am    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 10:00am   | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 11:00am   | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 12:00pm   | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 1:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 2:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 3:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 4:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 5:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 6:00pm    | CSC148    | CSC165    | CSC165    | CSC148    | -         |
+    |           | Lec 5101  | Lec 5101  | Lec 5101  | Lec 5101  |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 7:00pm    | CSC148    | CSC165    | CSC165    | CSC148    | -         |
+    |           | Lec 5101  | Lec 5101  | Lec 5101  | Lec 5101  |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 8:00pm    | -         | CSC165    | -         | CSC148    | -         |
+    |           |           | Lec 5101  |           | Lec 5101  |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 9:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+
+    """
+    print(" " + "_"*71)
+    print("|           " + "| MONDAY".ljust(12) + "| TUESDAY".ljust(12) + "| WEDNESDAY".ljust(12) + "| THURSDAY".ljust(12) + "| FRIDAY".ljust(12) + "|")
+    print("|___________"*6 + "|")
+
+    for i in range(28):
+        if i % 2 == 0:
+            if i//2 <= 3:
+                print("|", (str(i//2 + 8) + ":00am").ljust(10), end="")
+            elif i//2 == 4:
+                print("|", "12:00pm".ljust(10), end="")
+            else:
+                print("|", (str(i//2 - 4) + ":00pm").ljust(10), end="")
+        else:
+            print("|", "          ", end="")
+
+        for j in range(5):
+            if not schedule[j][i//2]:
+                if j != 4:
+                    if i % 2 == 0:
+                        print("| -".ljust(12), end="")
+                    else:
+                        print("|           ", end="")
+                elif i % 2 == 0:
+                    print("| -".ljust(12) + "|")
+                else:
+                    print("|           |")
+                    print("|___________"*6 + "|")
+            else:
+                course_comps = schedule[j][i//2].split(" ")
+                if i % 2 == 0:
+                    if j != 4:
+                        print(("| " + course_comps[0]).ljust(12), end="")
+                    else:
+                        print(("| " + course_comps[0]).ljust(12) + "|")
+                else:
+                    if j != 4:
+                        print(("| " + " ".join(course_comps[1:])).ljust(12), end="")
+                    else:
+                        print(("| " + " ".join(course_comps[1:])).ljust(12) + "|")
+                        print("|___________"*6 + "|")
+
+
+def get_best_schedule(campus, *args):
+    """
+    campus: a string - either "St. George", "Scarborough", or "Mississauga"
+    args: strings of course codes e.g. "CSC148", "COG250"
+    Returns the schedule with the best score, as determined by the functions in the cost.py module
     """
     best_schedule = []
-    best_score = []
+    best_score = 0
     possible_schedules = create_schedule(campus, *args)
 
     for i in range(len(possible_schedules[0])):
-        schedule = process_schedule(possible_schedules[0][i])
-        score =  # some sort of cost function
+        schedule = process_schedule(possible_schedules[0][i], possible_schedules[1][i])
+        score = cost.combined_instructor_score(cost.all_instructor_scores(schedule))
         if score > best_score:
             best_schedule = schedule
             best_score = score
 
     return best_schedule
-    """
+
+
+# example
+if __name__ == "__main__":
+    print_schedule(get_best_schedule("St. George", "CSC148", "CSC165", "APS105", "COG250"))
