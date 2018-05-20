@@ -3,6 +3,8 @@ sys.path.append("../src/selection-recommendation")
 sys.path.append("../src/util")
 import time_conflicts_check
 import recommend
+import cost
+
 
 class TestClass():
     def test_time_to_num_1(self):
@@ -46,12 +48,28 @@ class TestClass():
 
     def test_process_schedule_1(self):
         correct_output = [
-               [None, None, None, None, None, None, None, None, None, None, "CSC148 Lec 5101", "CSC148 Lec 5101", None, None],
-               [None, None, None, None, None, None, None, None, None, None, "CSC165 Lec 5101", "CSC165 Lec 5101", "CSC165 Lec 5101", None],
-               [None, None, None, None, None, None, None, None, None, None, "CSC165 Lec 5101", "CSC165 Lec 5101", None, None],
-               [None, None, None, None, None, None, None, None, None, None, "CSC148 Lec 5101", "CSC148 Lec 5101", "CSC148 Lec 5101", None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None],
                [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
            ]
         assert recommend.process_schedule(
             "MONDAY 18:00-20:00 THURSDAY 18:00-21:00 TUESDAY 18:00-21:00 WEDNESDAY 18:00-20:00",
             "CSC148 Lec 5101 CSC148 Lec 5101 CSC165 Lec 5101 CSC165 Lec 5101") == correct_output
+
+    def test_process_schedule_2(self):
+        correct_output = []
+        none = [None]*14
+        for i in range(5):
+            correct_output.append(none[:])
+        assert recommend.process_schedule("", "") == correct_output
+
+    def test_combined_instructor_score_1(self):
+        assert cost.combined_instructor_score([[4, 4, 4, 4, 4, 4], [4, 4, 4, 4, 4, 4]]) == 80
+
+    def test_combined_instructor_score_2(self):
+        assert cost.combined_instructor_score([[3.7, 4.1, 4, 4.2, 3.9, 3.9], [4, 3.8, 3.7, 3.8, 4.1, 3.7], [4, 3.5, 3.9, 4.2, 4.1, 3.9]]) == 78.33333333333333
+
+    def test_combined_instructor_score_3(self):
+        assert cost.combined_instructor_score([[0, 0, 0, 0, 0, 0]]) == 0

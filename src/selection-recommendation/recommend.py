@@ -92,7 +92,7 @@ def __get_all_possible_course_times(course_code, campus):
     # course has tutorial sections but no lab sections
     elif (tutorial_times != []) and (lab_times == []):
         all_times = list(itertools.product(lecture_times, tutorial_times))  # all combinations of lecture/tutorial
-        all_section_combs = [list(i) for i in list(itertools.product(lecture_sections, tutorial_sections))]
+        all_section_combs = list(itertools.product(lecture_sections, tutorial_sections))
 
         for i in range(len(all_times)):
             if time_conflicts_check.no_time_conflict(all_times[i][0], all_times[i][1]):  # check for internal time conflicts
@@ -179,7 +179,7 @@ def process_schedule(all_times, all_sections):
 
     Returns a 2D list representing a schedule in the following format:
         [Monday_schedule, Tuesday_schedule, Wednesday_schedule, Thursday_schedule, Friday_schedule]
-        The elements of this list have 14 elements each. Each of these elements is a course section that takes place
+        The elements of this list have 14 elements each. Each of these elements is a tuple representing a course section that takes place
         during that hour, with index 0 representing 8am-9am and index 13 representing 9pm-10pm, or None if no course takes
         place during that time.
 
@@ -187,10 +187,10 @@ def process_schedule(all_times, all_sections):
             "MONDAY 18:00-20:00 THURSDAY 18:00-21:00 TUESDAY 18:00-21:00 WEDNESDAY 18:00-20:00",
             "CSC148 Lec 5101 CSC148 Lec 5101 CSC165 Lec 5101 CSC165 Lec 5101")
         -> [
-               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', None, None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', 'CSC165 Lec 5101', None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', None, None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', 'CSC148 Lec 5101', None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None],
                [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
            ]
     """
@@ -208,7 +208,7 @@ def process_schedule(all_times, all_sections):
         dur = time_conflicts_check.time_to_num(start_end[1]) - time_conflicts_check.time_to_num(start_end[0])
 
         for hour in range(dur):
-            week[day_to_int(times[2*i])][start + hour] = " ".join(sections[3*i:3*i + 3])
+            week[day_to_int(times[2*i])][start + hour] = (sections[3*i], " ".join(sections[3*i + 1:3*i + 3]))
 
     return week
 
@@ -220,10 +220,10 @@ def print_schedule(schedule):
     schedule: a list of lists. This should be an output from a process_schedule() call.
 
     e.g. print_schedule([
-               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', None, None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', 'CSC165 Lec 5101', None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', None, None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', 'CSC148 Lec 5101', None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None],
                [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
            ])
         prints the following to the terminal:
@@ -302,17 +302,16 @@ def print_schedule(schedule):
                     print("|           |")
                     print("|___________"*6 + "|")
             else:
-                course_comps = schedule[j][i//2].split(" ")
                 if i % 2 == 0:
                     if j != 4:
-                        print(("| " + course_comps[0]).ljust(12), end="")
+                        print(("| " + schedule[j][i//2][0]).ljust(12), end="")
                     else:
-                        print(("| " + course_comps[0]).ljust(12) + "|")
+                        print(("| " + schedule[j][i//2][0]).ljust(12) + "|")
                 else:
                     if j != 4:
-                        print(("| " + " ".join(course_comps[1:])).ljust(12), end="")
+                        print(("| " + schedule[j][i//2][1]).ljust(12), end="")
                     else:
-                        print(("| " + " ".join(course_comps[1:])).ljust(12) + "|")
+                        print(("| " + schedule[j][i//2][1]).ljust(12) + "|")
                         print("|___________"*6 + "|")
 
 
@@ -320,10 +319,11 @@ def get_best_schedule(campus, *args):
     """
     campus: a string - either "St. George", "Scarborough", or "Mississauga"
     args: strings of course codes e.g. "CSC148", "COG250"
-    Returns the schedule with the best score, as determined by the functions in the cost.py module
+    Returns the schedule with the best score, as determined by the functions in the cost.py module.
+    If no valid schedule exists, returns an empty list.
     """
     best_schedule = []
-    best_score = 0
+    best_score = -1
     possible_schedules = create_schedule(campus, *args)
 
     for i in range(len(possible_schedules[0])):
