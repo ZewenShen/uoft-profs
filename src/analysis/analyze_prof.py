@@ -97,6 +97,17 @@ def analyze_past_eval_by_cID(dict_cursor, cID):
     return __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(COURSE_EVAL_BY_CID, dict_cursor, cID)
 
 def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID):
+    """
+    >>> analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, 'Faith Ellen', 'CSC240')
+                          CSC240 not taught by Faith Ellen
+    avg_recommend_rating                              3.40
+    avg_deeper_understanding                          4.10
+    avg_intellectually_simulating                     4.00
+    avg_homework_fairness                             3.90
+    avg_home_quality                                  4.00
+    avg_overall_quality                               3.30
+    avg_respondent_percentage                         0.39
+    """
     course_by_prof_eval_data = Database.get_past_eval_by_cID_excluding_one_prof(dict_cursor,\
             exclusiveInstructorFullName, cID)
     
@@ -106,21 +117,31 @@ def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructor
     return course_by_prof_df
 
 def get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
+    """
+    The major method (1 of 2) we used in this file.
+    """
     df1 = analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName)
     df2 = analyze_avg_prof_quality_by_department(dict_cursor, departmentID)
     df = __concat_two_dataframes(df1, df2)
-    get_bar_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
+    __get_bar_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
 
 def get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
+    """
+    The major method (2 of 2) we used in this file.
+    """
     df1 = analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID)
     df2 = analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, instructorFullName, cID)
     df = __concat_two_dataframes(df1, df2)
-    get_bar_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
+    __get_bar_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
 
 def __concat_two_dataframes(df1, df2):
+    """
+    A helper function used to combine two DataFrame, such that we can plot them
+    together.
+    """
     return pd.concat([df1, df2], axis=1)
 
-def get_bar_by_dataframe(df, title=None):
+def __get_bar_by_dataframe(df, title=None):
     df.plot(kind='bar', rot=0, alpha=0.75, title=title)
     plt.show()
 
