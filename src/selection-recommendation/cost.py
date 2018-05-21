@@ -60,7 +60,7 @@ def all_instructor_scores(schedule):
     cursor = connection.cursor()
 
     instructor_scores = []
-    seen = []
+    seen = set()
 
     for i in range(len(schedule)):
         for j in range(len(schedule[0])):
@@ -72,7 +72,7 @@ def all_instructor_scores(schedule):
                 if instructor_score:
                     instructor_scores.append(instructor_score)
 
-                seen.append(schedule[i][j])
+                seen.add(schedule[i][j])
 
     return instructor_scores
 
@@ -87,6 +87,7 @@ def combined_instructor_score(instructor_scores):
 
     e.g. combined_instructor_score([[4, 4, 4, 4, 4, 4], [4, 4, 4, 4, 4, 4]]) -> 80.0
          combined_instructor_score([[3.7, 4.1, 4, 4.2, 3.9, 3.9], [4, 3.8, 3.7, 3.8, 4.1, 3.7], [4, 3.5, 3.9, 4.2, 4.1, 3.9]]) -> 78.33333333333333
+         combined_instructor_score([]) -> None
     """
     if instructor_scores == []:  # no eval data for any courses
         return 0

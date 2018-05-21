@@ -1,3 +1,4 @@
+import time
 import sys
 sys.path.append("../util")
 import itertools
@@ -313,6 +314,7 @@ def print_schedule(schedule):
                     else:
                         print(("| " + schedule[j][i//2][1]).ljust(12) + "|")
                         print("|___________"*6 + "|")
+    print("")
 
 
 def get_best_schedule(campus, *args):
@@ -336,6 +338,39 @@ def get_best_schedule(campus, *args):
     return best_schedule
 
 
+def get_all_schedules(campus, *args):
+    """
+    campus: a string - either "St. George", "Scarborough", or "Mississauga"
+    args: strings of course codes e.g. "CSC148", "COG250"
+    Returns a list of tuples, where each tuple consists of a "schedule" (refer to output of process_schedule()) and
+    a number representing the combined instructor score of the schedule, based on the functions in cost.py.
+    If no valid schedule exists, returns an empty list.
+    """
+    all_schedules = []
+    possible_schedules = create_schedule(campus, *args)
+
+    for i in range(len(possible_schedules[0])):
+        schedule = process_schedule(possible_schedules[0][i], possible_schedules[1][i])
+        score = cost.combined_instructor_score(cost.all_instructor_scores(schedule))
+        all_schedules.append((score, schedule))
+
+    return sorted(all_schedules, key=lambda x: x[0], reverse=True)
+
+
 # example
 if __name__ == "__main__":
-    print_schedule(get_best_schedule("St. George", "CSC148", "CSC165", "APS105", "COG250"))
+    start = time.time()
+
+    #all_schedules = get_all_schedules("St. George", "CSC148")  # takes about 1.9 secs
+    #all_schedules = get_all_schedules("St. George", "CSC148", "CSC165")  # takes about 4 secs
+    #all_schedules = get_all_schedules("St. George", "CSC148", "CSC165", "APS105")  # takes about 6.9 secs
+    all_schedules = get_all_schedules("St. George", "CSC148", "CSC165", "APS105", "COG250")  # takes about 8.6 secs
+    #print(time.time() - start)
+
+    for schedule in all_schedules:
+        if schedule[0]:
+            print("Schedule instructor score:", schedule[0])
+        else:
+            print("Schedule instructor score: no data available")
+
+        print_schedule(schedule[1])

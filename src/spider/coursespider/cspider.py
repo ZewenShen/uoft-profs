@@ -115,22 +115,22 @@ def parse_course_detail(html):
 
 def main():
     connection = Database.get_connection(DB_PATH, DB_NAME)
-    cursor = connection.cursor()
 
-    Buffer = 0 
-    count = 0
-    for course_dict in parse_json(get_all_courses_json()):
-        try:
-            Database.insert_course_data(cursor, course_dict)
-        except:
-            print("error when inserting {}".format(course_dict))
-            continue
-        count += 1
-        Buffer += 1
-        if Buffer == COMMIT_BUFFER:
-            print("{}th time insert course data successfully".format(count))
-            Database.commit_data(connection)
-            Buffer = 0
+    with connection.cursor() as cursor:
+        Buffer = 0 
+        count = 0
+        for course_dict in parse_json(get_all_courses_json()):
+            try:
+                Database.insert_course_data(cursor, course_dict)
+            except:
+                print("error when inserting {}".format(course_dict))
+                continue
+            count += 1
+            Buffer += 1
+            if Buffer == COMMIT_BUFFER:
+                print("{}th time insert course data successfully".format(count))
+                Database.commit_data(connection)
+                Buffer = 0
 
     Database.commit_data(connection)
     connection.close()
