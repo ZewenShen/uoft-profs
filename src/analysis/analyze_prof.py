@@ -2,24 +2,44 @@ import sys
 sys.path.append('../util/')
 import Database
 import pandas as pd
+import matplotlib.pyplot as plt
 
-PROF_QUALITY_BY_PNAME = 1 # index of DB_GETMETHOD_DICT
-DEPARTMENT_QUALITY_BY_DID = 2 # index of DB_GETMETHOD_DICT
-COURSE_EVAL_BY_CID = 3 # index of DB_GETMETHOD_DICT
+PROF_QUALITY_BY_PNAME = 1 # index of DB_GETMETHOD_WITH_ONE_ARG
+DEPARTMENT_QUALITY_BY_DID = 2 # index of DB_GETMETHOD_WITH_ONE_ARG
+COURSE_EVAL_BY_INSTRUCTOR_AND_CID = 3 # index of DB_GETMETHOD_WITH_TWO_ARGS
+COURSE_EVAL_BY_CID_EXCLUDING_PROF = 4 # index of DB_GETMETHOD_WITH_TWO_ARGS
+COURSE_EVAL_BY_CID = 5
 
-DB_GETMETHOD_DICT = {\ #used by __analyze_data_by_DB_GETMETHOD_DICT
+DB_GETMETHOD_WITH_ONE_ARG = {\
     PROF_QUALITY_BY_PNAME: Database.get_prof_quality_by_instructorFullName,\
     DEPARTMENT_QUALITY_BY_DID: Database.get_avg_prof_quality_by_department,\
-    COURSE_EVAL_BY_CID: Database.get_past_eval_by_cID\
+    COURSE_EVAL_BY_CID: Database.get_past_eval_by_cID
+} # used by __analyze_data_by_DB_GETMETHOD_DICT
+   
+"""
+DB_GETMETHOD_WITH_TWO_ARGS = {\
+    COURSE_EVAL_BY_PROF_AND_CID: Database.get_past_eval_by_instructorFullName_and_cID,\
+    COURSE_EVAL_BY_CID_EXCLUDING_PROF: Database.get_past_eval_by_cID_excluding_one_prof
 }
+"""
 
-def __analyze_data_by_DB_GETMETHOD_DICT(get_type, dict_cursor, arg):
+
+
+def __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(get_type, dict_cursor, arg):
     """
     A generalized helper function used to return DataFrame
     """
-    data = DB_GETMETHOD_DICT[get_type](dict_cursor, arg)
+    data = DB_GETMETHOD_WITH_ONE_ARG[get_type](dict_cursor, arg)
     df = pd.DataFrame(list(data.values()), columns=[arg], index=list(data.keys()))
     return df
+
+"""
+def __analyze_data_by_DB_GETMETHOD_WITH_TWO_ARGS(get_type, dict_cursor, *args):
+    assert len(args) == 2
+    data = DB_GETMETHOD_WITH_TWO_ARGS[get_type](dict_cursor, args[1], args[2])
+    df = pd.DataFrame(list(data.values()), columns=[args[0]], index=list(data.keys()))
+    return df
+"""
 
 def analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
     """
@@ -28,7 +48,7 @@ def analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
     average_enthusiasm              4.47
     average_course_atmosphere       4.41
     """
-    return __analyze_data_by_DB_GETMETHOD_DICT(PROF_QUALITY_BY_PNAME, dict_cursor, instructorFullName)
+    return __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(PROF_QUALITY_BY_PNAME, dict_cursor, instructorFullName)
 
 def analyze_avg_prof_quality_by_department(dict_cursor, departmentID):
     """
@@ -38,7 +58,7 @@ def analyze_avg_prof_quality_by_department(dict_cursor, departmentID):
     average_course_atmosphere  3.90
 
     """
-    return __analyze_data_by_DB_GETMETHOD_DICT(DEPARTMENT_QUALITY_BY_DID, dict_cursor, departmentID)
+    return __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(DEPARTMENT_QUALITY_BY_DID, dict_cursor, departmentID)
 
 def analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID):
     """
@@ -74,8 +94,35 @@ def analyze_past_eval_by_cID(dict_cursor, cID):
         avg_home_quality                 4.63
 
     """
-    return __analyze_data_by_DB_GETMETHOD_DICT(COURSE_EVAL_BY_CID, dict_cursor, cID)
+    return __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(COURSE_EVAL_BY_CID, dict_cursor, cID)
 
+def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID):
+    course_by_prof_eval_data = Database.get_past_eval_by_cID_excluding_one_prof(dict_cursor,\
+            exclusiveInstructorFullName, cID)
+    
+    course_by_prof_df = pd.DataFrame(list(course_by_prof_eval_data.values()), columns =\
+            ["{} not taught by {}".format(cID, exclusiveInstructorFullName)], index=list(course_by_prof_eval_data.keys()))
+
+    return course_by_prof_df
+
+def get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
+    df1 = analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName)
+    df2 = analyze_avg_prof_quality_by_department(dict_cursor, departmentID)
+    df = __concat_two_dataframes(df1, df2)
+    get_bar_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
+
+def get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
+    df1 = analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID)
+    df2 = analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, instructorFullName, cID)
+    df = __concat_two_dataframes(df1, df2)
+    get_bar_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
+
+def __concat_two_dataframes(df1, df2):
+    return pd.concat([df1, df2], axis=1)
+
+def get_bar_by_dataframe(df, title=None):
+    df.plot(kind='bar', rot=0, alpha=0.75, title=title)
+    plt.show()
 
 if __name__ == '__main__':
     connection = Database.get_connection_with_dict_cursor('../../database.info', 'uoftcourses')

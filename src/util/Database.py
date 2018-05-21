@@ -211,3 +211,18 @@ def get_past_eval_by_cID(dict_cursor, cID):
     result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
     return result
 
+def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID):
+    sql = "SELECT round(avg(intellectuallySimulating), 2) as\
+    avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
+    avg_deeper_understanding, round(avg(homeworkQuality), 2) as\
+    avg_home_quality, round(avg(homeworkFairness), 2) as avg_homework_fairness,\
+    round(avg(overallQuality), 2) as avg_overall_quality, round(avg(recommend),\
+    2) as avg_recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
+    avg_respondent_percentage from Eval where instructorFullName <> %s and cID like %s"
+
+    dict_cursor.execute(sql, (exclusiveInstructorFullName, "{}%".format(cID)))
+
+    result = dict_cursor.fetchone()
+    result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    return result
+

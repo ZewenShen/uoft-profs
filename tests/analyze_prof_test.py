@@ -32,17 +32,16 @@ class Test(unittest.TestCase):
                         'avg_overall_quality': 4.05\
                         }
 
-    def test_get_past_eval_by_cID(self):
-        assert Database.get_past_eval_by_cID(self.cursor, "CSC148") ==\
-                        {'avg_home_quality': 4.16,\
+    def test_get_past_eval_by_cID_excluding_one_prof(self):
+        assert Database.get_past_eval_by_cID_excluding_one_prof(self.cursor, "David Liu", "CSC148") ==\
+                        {'avg_home_quality': 4.13,\
                         'avg_respondent_percentage': 0.36,\
-                        'avg_recommend_rating': 3.98,\
+                        'avg_recommend_rating': 3.92,\
                         'avg_deeper_understanding': 4.18,\
                         'avg_intellectually_simulating': 4.08,\
-                        'avg_homework_fairness': 4.1,\
-                        'avg_overall_quality': 3.85\
+                        'avg_homework_fairness': 4.08,\
+                        'avg_overall_quality': 3.8\
                         }
-
 
 if __name__ == '__main__':
     unittest.main()
