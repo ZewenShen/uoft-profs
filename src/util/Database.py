@@ -48,6 +48,12 @@ def get_connection(path, DB_NAME):
     connection = pymysql.connect(host = params[0], user = params[1], password = params[2], port = params[3], db = DB_NAME)
     return connection
 
+def get_connection_with_dictcursor(path, DB_NAME):
+    params = __get_params(path)
+    connection = pymysql.connect(host = params[0], user = params[1], password =\
+            params[2], port = params[3], db = DB_NAME,\
+            cursorclass=pymysql.cursors.DictCursor)
+    return connection
 
 def insert_course_data(cursor, info_dict):
     sql = "INSERT INTO Course(cID, cName, credits, campus, department, term,\
@@ -121,7 +127,6 @@ def insert_eval_data(cursor, info_dict):
     except pymysql.err.IntegrityError as e:
         print("error due to the crappy data source:", e.args)
 
-
 def commit_data(connection):
     try:
         connection.commit()
@@ -143,3 +148,66 @@ def get_course_data_by_cID_and_campus(cursor, cID, campus):
     cursor.execute(sql, ("%{}%".format(cID), campus))
 
     return list(cursor.fetchall())
+
+def get_prof_quality_by_instructorFullName(cursor, full_name):
+    """
+    demo: 
+    > get_prof_quality_by_fullname(cursor, "David Liu")
+    returns a dictionary 
+    {'average_course_atmosphere': 4.41, 'average_enthusiasm': 4.47}
+    """
+
+    sql = "SELECT round(avg(courseAtmosphere), 2) as average_course_atmosphere,\
+    round(avg(enthusiasm), 2) as average_enthusiasm from Eval where instructorFullName = %s"
+    
+    cursor.execute(sql, (full_name))
+
+    return cursor.fetchone()
+
+def get_avg_prof_quality_by_department(cursor, departmentID):
+    """
+    demo: 
+    > get_avg_prof_quality_by_department(cursor, "CSC")
+    returns a dictionary 
+    {'average_course_atmosphere': 3.9, 'average_enthusiasm': 3.95}
+    -------------------------------------------------------------
+    Note: departmentID is the first three char at the beginning of cID.
+    """
+
+    sql = "SELECT round(avg(courseAtmosphere), 2) as average_course_atmosphere,\
+    round(avg(enthusiasm), 2) as average_enthusiasm from Eval where cID like %s"
+
+    cursor.execute(sql, ("{}%".format(departmentID)))
+
+    return cursor.fetchone()
+
+def get_past_eval_by_instructorFullName_and_cID(cursor, instructorFullName, cID):
+    sql = "SELECT round(avg(intellectuallySimulating), 2) as\
+    avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
+    avg_deeper_understanding, round(avg(homeworkQuality), 2) as\
+    avg_home_quality, round(avg(homeworkFairness), 2) as avg_homework_fairness,\
+    round(avg(overallQuality), 2) as avg_overall_quality, round(avg(recommend),\
+    2) as avg_recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
+    avg_respondent_percentage from Eval where instructorFullName = %s and cID like %s"
+
+    cursor.execute(sql, (instructorFullName, "{}%".format(cID)))
+
+    result =  cursor.fetchone()
+    result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    return result
+
+def get_past_eval_by_cID(cursor, cID):
+    sql = "SELECT round(avg(intellectuallySimulating), 2) as\
+    avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
+    avg_deeper_understanding, round(avg(homeworkQuality), 2) as\
+    avg_home_quality, round(avg(homeworkFairness), 2) as avg_homework_fairness,\
+    round(avg(overallQuality), 2) as avg_overall_quality, round(avg(recommend),\
+    2) as avg_recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
+    avg_respondent_percentage from Eval where cID like %s"
+
+    cursor.execute(sql, ("{}%".format(cID)))
+
+    result = cursor.fetchone()
+    result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    return result
+
