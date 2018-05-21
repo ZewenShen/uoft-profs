@@ -128,19 +128,20 @@ def extract_eval_data(tr_tag):
 
 def main():
     connection = Database.get_connection(DB_PATH, DB_NAME)
-    cursor = connection.cursor()
 
-    Buffer = 0
-    count = 0
-    for i in range(1, TOTAL_EVAL_DATA // PAGE_SIZE + 1):
-        for row in clean_course_evals(get_course_evals(i)):
-            Database.insert_eval_data(cursor, row)
-            count += 1
-            Buffer += 1
-            if Buffer == COMMIT_BUFFER:
-                print("{}th time insert eval data successfully".format(count))
-                Database.commit_data(connection)
-                Buffer = 0
+    with connection.cursor() as cursor:
+        Buffer = 0
+        count = 0
+        for i in range(1, TOTAL_EVAL_DATA // PAGE_SIZE + 1):
+            for row in clean_course_evals(get_course_evals(i)):
+                Database.insert_eval_data(cursor, row)
+                count += 1
+                Buffer += 1
+                if Buffer == COMMIT_BUFFER:
+                    print("{}th time insert eval data successfully".format(count))
+                    Database.commit_data(connection)
+                    Buffer = 0
+
     Database.commit_data(connection)
     connection.close()
 
