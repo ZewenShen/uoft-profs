@@ -9,7 +9,7 @@ class Test(unittest.TestCase):
     all the tests will fail after the database is updated sometime.
     """
     def setUp(self):
-        self.db = Database.get_connection_with_dictcursor('../database.info', 'uoftcourses')
+        self.db = Database.get_connection_with_dict_cursor('../database.info', 'uoftcourses')
         self.cursor = self.db.cursor()
 
     def tearDown(self):

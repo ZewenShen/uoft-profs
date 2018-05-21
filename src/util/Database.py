@@ -48,7 +48,7 @@ def get_connection(path, DB_NAME):
     connection = pymysql.connect(host = params[0], user = params[1], password = params[2], port = params[3], db = DB_NAME)
     return connection
 
-def get_connection_with_dictcursor(path, DB_NAME):
+def get_connection_with_dict_cursor(path, DB_NAME):
     params = __get_params(path)
     connection = pymysql.connect(host = params[0], user = params[1], password =\
             params[2], port = params[3], db = DB_NAME,\
@@ -149,7 +149,7 @@ def get_course_data_by_cID_and_campus(cursor, cID, campus):
 
     return list(cursor.fetchall())
 
-def get_prof_quality_by_instructorFullName(cursor, full_name):
+def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
     """
     demo: 
     > get_prof_quality_by_fullname(cursor, "David Liu")
@@ -160,11 +160,11 @@ def get_prof_quality_by_instructorFullName(cursor, full_name):
     sql = "SELECT round(avg(courseAtmosphere), 2) as average_course_atmosphere,\
     round(avg(enthusiasm), 2) as average_enthusiasm from Eval where instructorFullName = %s"
     
-    cursor.execute(sql, (full_name))
+    dict_cursor.execute(sql, (instructorFullName))
 
-    return cursor.fetchone()
+    return dict_cursor.fetchone()
 
-def get_avg_prof_quality_by_department(cursor, departmentID):
+def get_avg_prof_quality_by_department(dict_cursor, departmentID):
     """
     demo: 
     > get_avg_prof_quality_by_department(cursor, "CSC")
@@ -177,11 +177,11 @@ def get_avg_prof_quality_by_department(cursor, departmentID):
     sql = "SELECT round(avg(courseAtmosphere), 2) as average_course_atmosphere,\
     round(avg(enthusiasm), 2) as average_enthusiasm from Eval where cID like %s"
 
-    cursor.execute(sql, ("{}%".format(departmentID)))
+    dict_cursor.execute(sql, ("{}%".format(departmentID)))
 
-    return cursor.fetchone()
+    return dict_cursor.fetchone()
 
-def get_past_eval_by_instructorFullName_and_cID(cursor, instructorFullName, cID):
+def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID):
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     avg_deeper_understanding, round(avg(homeworkQuality), 2) as\
@@ -190,13 +190,13 @@ def get_past_eval_by_instructorFullName_and_cID(cursor, instructorFullName, cID)
     2) as avg_recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
     avg_respondent_percentage from Eval where instructorFullName = %s and cID like %s"
 
-    cursor.execute(sql, (instructorFullName, "{}%".format(cID)))
+    dict_cursor.execute(sql, (instructorFullName, "{}%".format(cID)))
 
-    result =  cursor.fetchone()
+    result = dict_cursor.fetchone()
     result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
     return result
 
-def get_past_eval_by_cID(cursor, cID):
+def get_past_eval_by_cID(dict_cursor, cID):
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     avg_deeper_understanding, round(avg(homeworkQuality), 2) as\
@@ -205,9 +205,9 @@ def get_past_eval_by_cID(cursor, cID):
     2) as avg_recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
     avg_respondent_percentage from Eval where cID like %s"
 
-    cursor.execute(sql, ("{}%".format(cID)))
+    dict_cursor.execute(sql, ("{}%".format(cID)))
 
-    result = cursor.fetchone()
+    result = dict_cursor.fetchone()
     result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
     return result
 
