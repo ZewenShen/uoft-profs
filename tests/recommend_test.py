@@ -4,9 +4,10 @@ sys.path.append("../src/util")
 import time_conflicts_check
 import recommend
 import cost
+import unittest
 
 
-class TestClass():
+class TestClass(unittest.TestCase):
     def test_time_to_num_1(self):
         assert time_conflicts_check.time_to_num("9:00") == 9
 
@@ -73,3 +74,6 @@ class TestClass():
 
     def test_combined_instructor_score_3(self):
         assert cost.combined_instructor_score([[0, 0, 0, 0, 0, 0]]) == 0
+
+if __name__ == '__main__':
+    unittest.main()

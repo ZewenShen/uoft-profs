@@ -142,7 +142,9 @@ def __concat_two_dataframes(df1, df2):
     return pd.concat([df1, df2], axis=1)
 
 def __get_bar_by_dataframe(df, title=None):
-    df.plot(kind='bar', rot=0, alpha=0.75, title=title)
+    ax = df.plot(kind='bar', rot=0, alpha=0.75, title=title)
+    for p in ax.patches:
+        ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
     plt.show()
 
 if __name__ == '__main__':
