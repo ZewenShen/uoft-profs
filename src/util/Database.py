@@ -1,12 +1,13 @@
 import pymysql
 
+
 def __get_params(path):
     f = open(path, 'r')
     params = f.readlines()
     f.close()
     params = [item.strip('\n') for item in params]
     params[3] = int(params[3])
-    return params 
+    return params
 
 
 def init_db(path, DB_NAME): # Should be called when this project is executed first time
@@ -85,6 +86,7 @@ def insert_course_data(cursor, info_dict):
             division, prerequisites, exclusion, br, lecNum_list[i], lecTime_list[i],\
             instructor_list[i], location_list[i], size_list[i], currentEnrollment_list[i]))
 
+
 def insert_eval_data(cursor, info_dict):
     sql = "INSERT INTO Eval (department, cID, cName, lecNum, campus, term,\
         instructor, instructorFullName, intellectuallySimulating,\
@@ -93,7 +95,7 @@ def insert_eval_data(cursor, info_dict):
         numInvited, numResponded) values (%s, %s, %s, %s, %s, %s, %s, %s, %s,\
         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-    info_dict = {k: (lambda x: None if x == 'N/A' or x == 'NRP' else x)(v) for k, v in info_dict.items()} 
+    info_dict = {k: (lambda x: None if x == 'N/A' or x == 'NRP' else x)(v) for k, v in info_dict.items()}
     # clean data in info_dict (since N/A may appear, which can't be recognized by sql.)
 
     department = info_dict['department']
@@ -133,10 +135,11 @@ def commit_data(connection):
     except:
         connection.rollback()
 
+
 def get_course_data_by_cID_and_campus(cursor, cID, campus):
     """
     cursor: the cursor of our connection.
-    course_code: a string, e.g., "CSC148"
+    cID: a string, e.g., "CSC148"
     campus: a string - either "St. George", "Scarborough", or "Mississauga"
     -------------------------------------------------------
     Returns a list of tuples, with each tuple containing the data of a single
@@ -149,26 +152,60 @@ def get_course_data_by_cID_and_campus(cursor, cID, campus):
 
     return list(cursor.fetchall())
 
+def get_instructor_by_cID_and_lecNum(cursor, cID, lecNum):
+    """
+    cursor: the cursor of our connection.
+    cID: a string, e.g., "CSC148"
+    lecNum: a string, representing the course section e.g. Lec 5101, Tut 0106
+    -------------------------------------------------------
+    Returns the instructor of the course given by cID and lecNum
+    -------------------------------------------------------
+    We use cursor here to avoid unnecessary connections with database.
+    """
+    sql = "SELECT instructor FROM Course Where cID like %s And lecNum = %s"
+    cursor.execute(sql, ("%{}%".format(cID), lecNum))
+
+    return cursor.fetchone()[0]
+
+
+def get_eval_data_by_cID_and_instructor(cursor, cID, instructor):
+    """
+    cursor: the cursor of our connection.
+    cID: a string, e.g., "CSC148"
+    instructor: a string e.g. "S Huynh", "T Fairgrieve"
+    -------------------------------------------------------
+    Returns a list of tuples, with each tuple containing the evaluation data of a single
+    section of the specified course
+    -------------------------------------------------------
+    We use cursor here to avoid unnecessary connections with database.
+    """
+    sql = "SELECT * FROM Eval Where cID like %s And instructor = %s"
+    cursor.execute(sql, ("%{}%".format(cID), instructor))
+
+    return list(cursor.fetchall())
+
+
 def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
     """
-    demo: 
+    demo:
     > get_prof_quality_by_fullname(cursor, "David Liu")
-    returns a dictionary 
+    returns a dictionary
     {'average_course_atmosphere': 4.41, 'average_enthusiasm': 4.47}
     """
 
     sql = "SELECT round(avg(courseAtmosphere), 2) as average_course_atmosphere,\
     round(avg(enthusiasm), 2) as average_enthusiasm from Eval where instructorFullName = %s"
-    
+
     dict_cursor.execute(sql, (instructorFullName))
 
     return dict_cursor.fetchone()
 
+
 def get_avg_prof_quality_by_department(dict_cursor, departmentID):
     """
-    demo: 
+    demo:
     > get_avg_prof_quality_by_department(cursor, "CSC")
-    returns a dictionary 
+    returns a dictionary
     {'average_course_atmosphere': 3.9, 'average_enthusiasm': 3.95}
     -------------------------------------------------------------
     Note: departmentID is the first three char at the beginning of cID.
@@ -180,6 +217,7 @@ def get_avg_prof_quality_by_department(dict_cursor, departmentID):
     dict_cursor.execute(sql, ("{}%".format(departmentID)))
 
     return dict_cursor.fetchone()
+
 
 def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID):
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
@@ -196,6 +234,7 @@ def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName,
     result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
     return result
 
+
 def get_past_eval_by_cID(dict_cursor, cID):
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
@@ -211,6 +250,7 @@ def get_past_eval_by_cID(dict_cursor, cID):
     result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
     return result
 
+
 def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID):
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
@@ -225,4 +265,3 @@ def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFull
     result = dict_cursor.fetchone()
     result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
     return result
-

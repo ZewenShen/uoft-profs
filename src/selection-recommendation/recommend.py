@@ -1,8 +1,10 @@
+import time
 import sys
 sys.path.append("../util")
 import itertools
 import Database
 import time_conflicts_check
+import cost
 
 DB_NAME = "uoftcourses"
 DB_PATH = "../../database.info"
@@ -91,7 +93,7 @@ def __get_all_possible_course_times(course_code, campus):
     # course has tutorial sections but no lab sections
     elif (tutorial_times != []) and (lab_times == []):
         all_times = list(itertools.product(lecture_times, tutorial_times))  # all combinations of lecture/tutorial
-        all_section_combs = [list(i) for i in list(itertools.product(lecture_sections, tutorial_sections))]
+        all_section_combs = list(itertools.product(lecture_sections, tutorial_sections))
 
         for i in range(len(all_times)):
             if time_conflicts_check.no_time_conflict(all_times[i][0], all_times[i][1]):  # check for internal time conflicts
@@ -178,7 +180,7 @@ def process_schedule(all_times, all_sections):
 
     Returns a 2D list representing a schedule in the following format:
         [Monday_schedule, Tuesday_schedule, Wednesday_schedule, Thursday_schedule, Friday_schedule]
-        The elements of this list have 14 elements each. Each of these elements is a course section that takes place
+        The elements of this list have 14 elements each. Each of these elements is a tuple representing a course section that takes place
         during that hour, with index 0 representing 8am-9am and index 13 representing 9pm-10pm, or None if no course takes
         place during that time.
 
@@ -186,10 +188,10 @@ def process_schedule(all_times, all_sections):
             "MONDAY 18:00-20:00 THURSDAY 18:00-21:00 TUESDAY 18:00-21:00 WEDNESDAY 18:00-20:00",
             "CSC148 Lec 5101 CSC148 Lec 5101 CSC165 Lec 5101 CSC165 Lec 5101")
         -> [
-               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', None, None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', 'CSC165 Lec 5101', None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC165 Lec 5101', 'CSC165 Lec 5101', None, None],
-               [None, None, None, None, None, None, None, None, None, None, 'CSC148 Lec 5101', 'CSC148 Lec 5101', 'CSC148 Lec 5101', None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None],
                [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
            ]
     """
@@ -207,23 +209,168 @@ def process_schedule(all_times, all_sections):
         dur = time_conflicts_check.time_to_num(start_end[1]) - time_conflicts_check.time_to_num(start_end[0])
 
         for hour in range(dur):
-            week[day_to_int(times[2*i])][start + hour] = " ".join(sections[3*i:3*i + 3])
+            week[day_to_int(times[2*i])][start + hour] = (sections[3*i], " ".join(sections[3*i + 1:3*i + 3]))
 
     return week
 
 
-def get_best_schedule(campus, *args):  # waiting for a finished cost function to use this functino
+def print_schedule(schedule):
+    """
+    This is just a function to print the schedule in a more readable way.
+
+    schedule: a list of lists. This should be an output from a process_schedule() call.
+
+    e.g. print_schedule([
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC165', 'Lec 5101'), ('CSC165', 'Lec 5101'), None, None],
+               [None, None, None, None, None, None, None, None, None, None, ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), ('CSC148', 'Lec 5101'), None],
+               [None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+           ])
+        prints the following to the terminal:
+     _______________________________________________________________________
+    |           | MONDAY    | TUESDAY   | WEDNESDAY | THURSDAY  | FRIDAY    |
+    |___________|___________|___________|___________|___________|___________|
+    | 8:00am    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 9:00am    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 10:00am   | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 11:00am   | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 12:00pm   | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 1:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 2:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 3:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 4:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 5:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 6:00pm    | CSC148    | CSC165    | CSC165    | CSC148    | -         |
+    |           | Lec 5101  | Lec 5101  | Lec 5101  | Lec 5101  |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 7:00pm    | CSC148    | CSC165    | CSC165    | CSC148    | -         |
+    |           | Lec 5101  | Lec 5101  | Lec 5101  | Lec 5101  |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 8:00pm    | -         | CSC165    | -         | CSC148    | -         |
+    |           |           | Lec 5101  |           | Lec 5101  |           |
+    |___________|___________|___________|___________|___________|___________|
+    | 9:00pm    | -         | -         | -         | -         | -         |
+    |           |           |           |           |           |           |
+    |___________|___________|___________|___________|___________|___________|
+
+    """
+    print(" " + "_"*71)
+    print("|           " + "| MONDAY".ljust(12) + "| TUESDAY".ljust(12) + "| WEDNESDAY".ljust(12) + "| THURSDAY".ljust(12) + "| FRIDAY".ljust(12) + "|")
+    print("|___________"*6 + "|")
+
+    for i in range(28):
+        if i % 2 == 0:
+            if i//2 <= 3:
+                print("|", (str(i//2 + 8) + ":00am").ljust(10), end="")
+            elif i//2 == 4:
+                print("|", "12:00pm".ljust(10), end="")
+            else:
+                print("|", (str(i//2 - 4) + ":00pm").ljust(10), end="")
+        else:
+            print("|", "          ", end="")
+
+        for j in range(5):
+            if not schedule[j][i//2]:
+                if j != 4:
+                    if i % 2 == 0:
+                        print("| -".ljust(12), end="")
+                    else:
+                        print("|           ", end="")
+                elif i % 2 == 0:
+                    print("| -".ljust(12) + "|")
+                else:
+                    print("|           |")
+                    print("|___________"*6 + "|")
+            else:
+                if i % 2 == 0:
+                    if j != 4:
+                        print(("| " + schedule[j][i//2][0]).ljust(12), end="")
+                    else:
+                        print(("| " + schedule[j][i//2][0]).ljust(12) + "|")
+                else:
+                    if j != 4:
+                        print(("| " + schedule[j][i//2][1]).ljust(12), end="")
+                    else:
+                        print(("| " + schedule[j][i//2][1]).ljust(12) + "|")
+                        print("|___________"*6 + "|")
+    print("")
+
+
+def get_best_schedule(campus, *args):
+    """
+    campus: a string - either "St. George", "Scarborough", or "Mississauga"
+    args: strings of course codes e.g. "CSC148", "COG250"
+    Returns the schedule with the best score, as determined by the functions in the cost.py module.
+    If no valid schedule exists, returns an empty list.
     """
     best_schedule = []
-    best_score = []
+    best_score = -1
     possible_schedules = create_schedule(campus, *args)
 
     for i in range(len(possible_schedules[0])):
-        schedule = process_schedule(possible_schedules[0][i])
-        score =  # some sort of cost function
+        schedule = process_schedule(possible_schedules[0][i], possible_schedules[1][i])
+        score = cost.combined_instructor_score(cost.all_instructor_scores(schedule))
         if score > best_score:
             best_schedule = schedule
             best_score = score
 
     return best_schedule
+
+
+def get_all_schedules(campus, *args):
     """
+    campus: a string - either "St. George", "Scarborough", or "Mississauga"
+    args: strings of course codes e.g. "CSC148", "COG250"
+    Returns a list of tuples, where each tuple consists of a "schedule" (refer to output of process_schedule()) and
+    a number representing the combined instructor score of the schedule, based on the functions in cost.py.
+    If no valid schedule exists, returns an empty list.
+    """
+    all_schedules = []
+    possible_schedules = create_schedule(campus, *args)
+
+    for i in range(len(possible_schedules[0])):
+        schedule = process_schedule(possible_schedules[0][i], possible_schedules[1][i])
+        score = cost.combined_instructor_score(cost.all_instructor_scores(schedule))
+        all_schedules.append((score, schedule))
+
+    return sorted(all_schedules, key=lambda x: x[0], reverse=True)
+
+
+# example
+if __name__ == "__main__":
+    start = time.time()
+
+    #all_schedules = get_all_schedules("St. George", "CSC148")  # takes about 1.9 secs
+    #all_schedules = get_all_schedules("St. George", "CSC148", "CSC165")  # takes about 4 secs
+    #all_schedules = get_all_schedules("St. George", "CSC148", "CSC165", "APS105")  # takes about 6.9 secs
+    all_schedules = get_all_schedules("St. George", "CSC148", "CSC165", "APS105", "COG250")  # takes about 8.6 secs
+    #print(time.time() - start)
+
+    for schedule in all_schedules:
+        if schedule[0]:
+            print("Schedule instructor score:", schedule[0])
+        else:
+            print("Schedule instructor score: no data available")
+
+        print_schedule(schedule[1])
