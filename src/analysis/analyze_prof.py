@@ -116,7 +116,7 @@ def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructor
 
     return course_by_prof_df
 
-def get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
+def plot_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
     """
     The major method (1 of 2) we used in this file.
     """
@@ -125,7 +125,7 @@ def get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFul
     df = __concat_two_dataframes(df1, df2)
     __get_bar_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
 
-def get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
+def plot_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
     """
     The major method (2 of 2) we used in this file.
     """

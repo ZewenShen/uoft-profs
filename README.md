@@ -6,6 +6,7 @@ This library intends to offer course selection advice to students at UofT, e.g.,
   - [x] Scrape all the course evaluation data from blackboard
   - [ ] Given all the courses one want to take in a semester, return a best time table based on time conflicts, course evaluation, etc.
   - [ ] Recommend courses in one's free time slots
+  - [x] Analyze course evaluation data from BlackBoard
   - [ ] Publish this service to the Internet
 
 ## Table of Contents
@@ -14,6 +15,7 @@ This library intends to offer course selection advice to students at UofT, e.g.,
 	- [Spider](#spider)
 	- [CourseSpider](#coursespider)
 	- [EvalSpider](#evalspider)
+	- [AnalyzeProf](#analyzeprof)
 
 ## Requirements
  - [python3](https://www.python.org/downloads/release/python-352/)
@@ -21,6 +23,9 @@ This library intends to offer course selection advice to students at UofT, e.g.,
  - [requests](http://docs.python-requests.org/en/master/user/install/)
  - [pymysql](https://github.com/PyMySQL/PyMySQL)
  - [lxml](http://lxml.de/index.html#download)
+ - [numpy](https://www.scipy,org/scipylib/download.html)
+ - [matplotlib](https://matplotlib.org/users/installing.html)
+ - [pandas](https://pandas.pydata.org/getpandas.html)
 
 ## Library Reference
 
@@ -87,3 +92,23 @@ Eval(department, <u>cID</u>, <u>cName</u>, <u>lecNum</u>, campus, term, instruct
 
 #### Demo:
 ![evalTable](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/eval_table_example.png?raw=true)
+
+### AnalyzeProf
+
+#### Usage I
+
+```python3
+python3 -i analyze_prof.py
+plot_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, "David Liu", "CSC148")
+```
+
+![contrastingProfWithOtherProf](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrasting_prof_with_other_prof_example.png?raw=true)
+
+#### Usage II
+
+```python3
+python3 -i analyze_prof.py
+plot_dataframe_by_contrasting_prof_with_department(dict_cursor, "Faith Ellen", "CSC")
+```
+
+![contrastingProfWithDepartment](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrasting_prof_with_department_example.png?raw=true)
