@@ -23,7 +23,7 @@ This library intends to offer course selection advice to students at UofT, e.g.,
  - [requests](http://docs.python-requests.org/en/master/user/install/)
  - [pymysql](https://github.com/PyMySQL/PyMySQL)
  - [lxml](http://lxml.de/index.html#download)
- - [numpy](https://www.scipy,org/scipylib/download.html)
+ - [numpy](https://www.scipy.org/scipylib/download.html)
  - [matplotlib](https://matplotlib.org/users/installing.html)
  - [pandas](https://pandas.pydata.org/getpandas.html)
 
@@ -99,16 +99,16 @@ Eval(department, <u>cID</u>, <u>cName</u>, <u>lecNum</u>, campus, term, instruct
 
 ```python3
 python3 -i analyze_prof.py
-plot_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, "David Liu", "CSC148")
+>>> plot_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, "David Liu", "CSC148")
 ```
 
-![contrastingProfWithOtherProf](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrasting_prof_with_other_prof_example.png?raw=true)
+![contrastProfWithOtherProf](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrast_prof_with_other_prof_example.png?raw=true)
 
 #### Usage II
 
 ```python3
 python3 -i analyze_prof.py
-plot_dataframe_by_contrasting_prof_with_department(dict_cursor, "Faith Ellen", "CSC")
+>>> plot_dataframe_by_contrasting_prof_with_department(dict_cursor, "Faith Ellen", "CSC")
 ```
 
-![contrastingProfWithDepartment](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrasting_prof_with_department_example.png?raw=true)
+![contrastProfWithDepartment](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrast_prof_with_department_example.png?raw=true)
