@@ -231,7 +231,10 @@ def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName,
     dict_cursor.execute(sql, (instructorFullName, "{}%".format(cID)))
 
     result = dict_cursor.fetchone()
-    result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    try:
+        result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    except TypeError as e:
+        print(e.args[0], ". Maybe the professor doesn't exist in this course.")
     return result
 
 
@@ -247,7 +250,10 @@ def get_past_eval_by_cID(dict_cursor, cID):
     dict_cursor.execute(sql, ("{}%".format(cID)))
 
     result = dict_cursor.fetchone()
-    result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    try:
+        result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    except TypeError as e:
+        print(e.args[0], ". Maybe the cID doesn't exist in uoft.")
     return result
 
 
@@ -263,5 +269,8 @@ def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFull
     dict_cursor.execute(sql, (exclusiveInstructorFullName, "{}%".format(cID)))
 
     result = dict_cursor.fetchone()
-    result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    try:
+        result['avg_respondent_percentage'] = float(result['avg_respondent_percentage'])
+    except TypeError as e:
+        print(e.args[0], ". Maybe the cID or prof doesn't exist in uoft.")
     return result
