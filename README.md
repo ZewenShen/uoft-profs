@@ -100,6 +100,8 @@ Eval(department, <u>cID</u>, <u>cName</u>, <u>lecNum</u>, campus, term, instruct
 ```python3
 python3 -i analyze_prof.py
 >>> plot_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, "David Liu", "CSC148")
+<Figure size 1800x1112 with 1 Axes>
+>>> plt.show()
 ```
 
 ![contrastProfWithOtherProf](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrast_prof_with_other_prof_example.png?raw=true)
@@ -109,6 +111,8 @@ python3 -i analyze_prof.py
 ```python3
 python3 -i analyze_prof.py
 >>> plot_dataframe_by_contrasting_prof_with_department(dict_cursor, "Faith Ellen", "CSC")
+<Figure size 1800x1112 with 1 Axes>
+>>> plt.show()
 ```
 
 ![contrastProfWithDepartment](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrast_prof_with_department_example.png?raw=true)
