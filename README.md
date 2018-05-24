@@ -3,7 +3,7 @@
 This library intends to offer course selection advice to students at UofT, e.g., whether the prof is good, whether the course is difficult, etc. Moreover, it automates the generation of one's timetable based on one's course selection.
 
 ## Functions to implement ...
-  - [x] Scrape all the course evaluation data from blackboard
+  - [x] Scrape all the course evaluation data from Blackboard
   - [ ] Given all the courses one want to take in a semester, return a best time table based on time conflicts, course evaluation, etc.
   - [ ] Recommend courses in one's free time slots
   - [x] Analyze course evaluation data from BlackBoard
@@ -13,8 +13,8 @@ This library intends to offer course selection advice to students at UofT, e.g.,
 - [Requirements](#requirements)
 - [Library Reference](#library-reference)
 	- [Spider](#spider)
-	- [CourseSpider](#coursespider)
-	- [EvalSpider](#evalspider)
+		- [CourseSpider](#coursespider)
+		- [EvalSpider](#evalspider)
 	- [AnalyzeProf](#analyzeprof)
 
 ## Requirements
@@ -30,12 +30,20 @@ This library intends to offer course selection advice to students at UofT, e.g.,
 ## Library Reference
 
 ### Spider
+
+#### Usage
 ```shell
 echo -e "host\nuser\npasssword\nport" > database.info
 cd src/spider/
-python3 main.py 
+python3 main.py -h
+usage: main.py [-h] [-i] [-c] [-e]
+
+optional arguments:
+  -h, --help    show this help message and exit
+  -i, --init    initialize the database
+  -c, --course  scrape courses offered at uoft
+  -e, --eval    scrape eval data from uoft blackboard
 ```
-Then all the data of courses currently offered at UofT & all the evaluation data will be sent to the given database. Courses' data is in table "Course" and evaluation data is in table "Eval". The two tables are both under the new created database "uoftcourses"
 
 #### database.info Example:
 ```shell
@@ -57,14 +65,6 @@ port: the port number that the SQL server is listening to
 
 ### CourseSpider
 
-```shell
-echo "host\nuser\npasssword\nport" > database.info
-cd src/spider/coursespider/
-python3 cspider.py 
-```
-
-Use this if you only need course data.
-
 #### Data source:
 [Course Finder](http://coursefinder.utoronto.ca)
 
@@ -75,14 +75,6 @@ Course(<u>cID</u>, cName, credits, campus, department, <u>term</u>, division, pr
 ![courseTable](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/course_table_example.png?raw=true)
 
 ### EvalSpider
-
-```shell
-echo "host\nuser\npasssword\nport" > database.info
-cd src/spider/evalspider/
-python3 espider.py 
-```
-
-Use this if you only need course evaluation data.
 
 #### Data source:
 [Faculty of Arts & Science Course Evaluations](https://course-evals.utoronto.ca/BPI/fbview.aspx?blockid=seipDRPeug8Eu)
@@ -95,24 +87,21 @@ Eval(department, <u>cID</u>, <u>cName</u>, <u>lecNum</u>, campus, term, instruct
 
 ### AnalyzeProf
 
-#### Usage I
+#### Usage
 
 ```python3
-python3 -i analyze_prof.py
->>> plot_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, "David Liu", "CSC148")
-<Figure size 1800x1112 with 1 Axes>
->>> plt.show()
+python3 analyze_prof.py -h
+usage: analyze_prof.py [-h] [-p] instructor courseID
+
+positional arguments:
+  instructor  The full name of instructor
+  courseID    The id of course, e.g., CSC240
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -p, --plot  Plot the graph in GUI mod (if this flag is not set on, an html 
+		      img tag will be printed to stdout)
 ```
+#### Demo:
 
-![contrastProfWithOtherProf](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrast_prof_with_other_prof_example.png?raw=true)
-
-#### Usage II
-
-```python3
-python3 -i analyze_prof.py
->>> plot_dataframe_by_contrasting_prof_with_department(dict_cursor, "Faith Ellen", "CSC")
-<Figure size 1800x1112 with 1 Axes>
->>> plt.show()
-```
-
-![contrastProfWithDepartment](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/contrast_prof_with_department_example.png?raw=true)
+![profAnalyze](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/prof_analyze_example.png?raw=true)
