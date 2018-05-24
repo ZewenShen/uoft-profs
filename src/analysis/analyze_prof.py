@@ -171,6 +171,7 @@ def convert_figure_to_html(fig):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--plot', help = "Plot the graph in GUI mod (if this flag is not set on, an html img tag will be printed to stdout)", action = "store_true")
     parser.add_argument('instructor', help = "The full name of instructor")
     parser.add_argument('courseID', help = "The id of course, e.g., CSC240")
     args = parser.parse_args()
@@ -187,7 +188,10 @@ if __name__ == '__main__':
     get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, axes[0], instructorFullName, department)
     get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, axes[1], instructorFullName, cID)
 
-    fig = plt.gcf()
-    print(convert_figure_to_html(fig))
+    if args.plot:
+        plt.show()
+    else:
+        fig = plt.gcf()
+        print(convert_figure_to_html(fig))
 
 
