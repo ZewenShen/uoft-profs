@@ -127,7 +127,7 @@ def insert_eval_data(cursor, info_dict):
             homeworkFairness, overallQuality, enthusiasm, workload, recommend,\
             numInvited, numResponded))
     except pymysql.err.IntegrityError as e:
-        print("error due to the crappy data source:", e.args)
+        print("error due to the crappy data source:", e.args, file=sys.stderr)
 
 def commit_data(connection):
     try:
@@ -234,7 +234,7 @@ def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName,
     try:
         result['respondent_percentage'] = float(result['respondent_percentage'])
     except TypeError as e:
-        print(e.args[0], ". Maybe the professor doesn't exist in this course.")
+        print(e.args[0], ". Maybe the professor doesn't exist in this course.", file=sys.stderr)
     return result
 
 
@@ -253,7 +253,7 @@ def get_past_eval_by_cID(dict_cursor, cID):
     try:
         result['respondent_percentage'] = float(result['respondent_percentage'])
     except TypeError as e:
-        print(e.args[0], ". Maybe the cID doesn't exist in uoft.")
+        print(e.args[0], ". Maybe the cID doesn't exist in uoft.", file=sys.stderr)
     return result
 
 
@@ -272,5 +272,5 @@ def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFull
     try:
         result['respondent_percentage'] = float(result['respondent_percentage'])
     except TypeError as e:
-        print(e.args[0], ". Maybe the cID or prof doesn't exist in uoft.")
+        print(e.args[0], ". Maybe the cID or prof doesn't exist in uoft.", file=sys.stderr)
     return result

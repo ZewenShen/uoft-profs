@@ -3,11 +3,9 @@ sys.path.append('../util/')
 import Database
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from io import BytesIO
-import urllib
 import base64
-
+import argparse
 
 PROF_QUALITY_BY_PNAME = 1 # index of DB_GETMETHOD_WITH_ONE_ARG
 DEPARTMENT_QUALITY_BY_DID = 2 # index of DB_GETMETHOD_WITH_ONE_ARG
@@ -21,14 +19,6 @@ DB_GETMETHOD_WITH_ONE_ARG = {\
     COURSE_EVAL_BY_CID: Database.get_past_eval_by_cID
 } # used by __analyze_data_by_DB_GETMETHOD_DICT
    
-"""
-DB_GETMETHOD_WITH_TWO_ARGS = {\
-    COURSE_EVAL_BY_PROF_AND_CID: Database.get_past_eval_by_instructorFullName_and_cID,\
-    COURSE_EVAL_BY_CID_EXCLUDING_PROF: Database.get_past_eval_by_cID_excluding_one_prof
-}
-"""
-
-
 
 def __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(get_type, dict_cursor, arg):
     """
@@ -37,14 +27,6 @@ def __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(get_type, dict_cursor, arg):
     data = DB_GETMETHOD_WITH_ONE_ARG[get_type](dict_cursor, arg)
     df = pd.DataFrame(list(data.values()), columns=[arg], index=list(data.keys()))
     return df
-
-"""
-def __analyze_data_by_DB_GETMETHOD_WITH_TWO_ARGS(get_type, dict_cursor, *args):
-    assert len(args) == 2
-    data = DB_GETMETHOD_WITH_TWO_ARGS[get_type](dict_cursor, args[1], args[2])
-    df = pd.DataFrame(list(data.values()), columns=[args[0]], index=list(data.keys()))
-    return df
-"""
 
 def analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
     """
@@ -141,30 +123,41 @@ def __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructor
     df = pd.concat([df1, df2], axis=1)
     return df
 
-def get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
+def get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, ax, instructorFullName, departmentID):
     """
     Plot the prof vs avg prof in department DataFrame in python.
     """
     df = __get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID)
-    return __get_figure_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
+    #return __get_figure_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
+    __get_figure_by_dataframe(df, ax, title="Prof {} vs {} department".format(instructorFullName, departmentID))
 
-def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
+def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, ax, instructorFullName, cID):
     """
     Plot the prof vs other profs DataFrame in python.
     """
     df = __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID)
-    return __get_figure_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
+    #return __get_figure_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
+    __get_figure_by_dataframe(df, ax, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
 
-def __get_figure_by_dataframe(df, title=None):
+def get_figure(dict_cursor, instructorFullName, cID, departmentID):
+    get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID)
+    get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID)
+    plt.legend(loc='best')
+    plt.show()
+
+def __get_figure_by_dataframe(df, ax, title=None):
     """
     Beatify the layout of the DataFrame, add label to each bar. Then return the
     figure.
     """
-    ax = df.plot(kind='bar', rot=0, alpha=0.6, title=title, figsize=(18, 11.12), fontsize=11)
-    ax.legend(loc='best', fancybox=True, framealpha=0.5)
-    for p in ax.patches:
-        ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
-    return plt.gcf()
+    try:
+        new_ax = df.plot(ax=ax, kind='bar', rot=0, alpha=0.6, title=title, figsize=(18, 11.12), fontsize=11)
+        new_ax.legend(loc='best', fancybox=True, framealpha=0.5)
+        for p in new_ax.patches:
+            new_ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+    except TypeError as e:
+        print("Unable to plot. Please check your data", file=sys.stdout)
+    #return plt.gcf()
 
 def convert_figure_to_html(fig):
     """
@@ -177,5 +170,24 @@ def convert_figure_to_html(fig):
     return '<img src="data:image/png;base64,{}">'.format(data.replace('\n', ''))
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('instructor', help = "The full name of instructor")
+    parser.add_argument('courseID', help = "The id of course, e.g., CSC240")
+    args = parser.parse_args()
+
+    instructorFullName = args.instructor
+    cID = args.courseID
+    department = cID[0: 3]
+
     connection = Database.get_connection_with_dict_cursor('../../database.info', 'uoftcourses')
     dict_cursor = connection.cursor()
+
+    fig, axes = plt.subplots(nrows=2, ncols=1)
+
+    get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, axes[0], instructorFullName, department)
+    get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, axes[1], instructorFullName, cID)
+
+    fig = plt.gcf()
+    print(convert_figure_to_html(fig))
+
+
