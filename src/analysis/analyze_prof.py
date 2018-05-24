@@ -116,36 +116,45 @@ def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructor
 
     return course_by_prof_df
 
-def plot_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
+def __get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
     """
-    The major method (1 of 2) we used in this file.
+    Get the dataframe of selected prof's evaluation and the evaluation of avg
+    profs in selected department.
     """
     df1 = analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName)
     df2 = analyze_avg_prof_quality_by_department(dict_cursor, departmentID)
-    df = __concat_two_dataframes(df1, df2)
-    __get_bar_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
+    df = pd.concat([df1, df2], axis=1)
+    return df
 
-def plot_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
+def __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
     """
-    The major method (2 of 2) we used in this file.
+    Get the dataframe of selected prof's evaluation and
+    the avg evaluation of other profs who taught that course before.
     """
     df1 = analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID)
     df2 = analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, instructorFullName, cID)
-    df = __concat_two_dataframes(df1, df2)
-    __get_bar_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
+    df = pd.concat([df1, df2], axis=1)
+    return df
 
-def __concat_two_dataframes(df1, df2):
+def get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
     """
-    A helper function used to combine two DataFrame, such that we can plot them
-    together.
+    Plot the prof vs avg prof in department DataFrame in python.
     """
-    return pd.concat([df1, df2], axis=1)
+    df = __get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID)
+    return __get_figure_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
 
-def __get_bar_by_dataframe(df, title=None):
+def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
+    """
+    Plot the prof vs other profs DataFrame in python.
+    """
+    df = __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID)
+    return __get_figure_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
+
+def __get_figure_by_dataframe(df, title=None):
     ax = df.plot(kind='bar', rot=0, alpha=0.75, title=title)
     for p in ax.patches:
         ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
-    plt.show()
+    return plt.gcf()
 
 if __name__ == '__main__':
     connection = Database.get_connection_with_dict_cursor('../../database.info', 'uoftcourses')
