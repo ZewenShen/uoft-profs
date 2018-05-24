@@ -89,13 +89,14 @@ Eval(department, <u>cID</u>, <u>cName</u>, <u>lecNum</u>, campus, term, instruct
 
 #### Usage
 
-```python3
+```shell
+cd src/analysis/
 python3 analyze_prof.py -h
 usage: analyze_prof.py [-h] [-p] instructor courseID
 
 positional arguments:
-  instructor  The full name of instructor
-  courseID    The id of course, e.g., CSC240
+  instructor  The full name of an instructor
+  courseID    The id of a course, e.g., CSC240
 
 optional arguments:
   -h, --help  show this help message and exit
