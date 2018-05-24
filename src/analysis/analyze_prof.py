@@ -3,6 +3,11 @@ sys.path.append('../util/')
 import Database
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from io import BytesIO
+import urllib
+import base64
+
 
 PROF_QUALITY_BY_PNAME = 1 # index of DB_GETMETHOD_WITH_ONE_ARG
 DEPARTMENT_QUALITY_BY_DID = 2 # index of DB_GETMETHOD_WITH_ONE_ARG
@@ -63,14 +68,14 @@ def analyze_avg_prof_quality_by_department(dict_cursor, departmentID):
 def analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID):
     """
     >>> analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, 'David Liu', 'CSC148')
-                                       David Liu's CSC148
-        avg_overall_quality                          4.05
-        avg_intellectually_simulating                4.08
-        avg_homework_fairness                        4.15
-        avg_respondent_percentage                    0.37
-        avg_deeper_understanding                     4.18
-        avg_recommend_rating                         4.22
-        avg_home_quality                             4.28
+                                   David Liu's CSC148
+        overall_quality                          4.05
+        intellectually_simulating                4.08
+        homework_fairness                        4.15
+        respondent_percentage                    0.37
+        deeper_understanding                     4.18
+        recommend_rating                         4.22
+        home_quality                             4.28
 
     """
     course_by_prof_eval_data = Database.get_past_eval_by_instructorFullName_and_cID(dict_cursor,\
@@ -84,14 +89,14 @@ def analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullN
 def analyze_past_eval_by_cID(dict_cursor, cID):
     """
     >>> analyze_past_eval_by_cID(dict_cursor, 'CSC265')
-                                       CSC265
-        avg_overall_quality              4.47
-        avg_intellectually_simulating    4.68
-        avg_homework_fairness            4.42
-        avg_respondent_percentage        0.55
-        avg_deeper_understanding         4.63
-        avg_recommend_rating             4.23
-        avg_home_quality                 4.63
+                                   CSC265
+        overall_quality              4.47
+        intellectually_simulating    4.68
+        homework_fairness            4.42
+        respondent_percentage        0.55
+        deeper_understanding         4.63
+        recommend_rating             4.23
+        home_quality                 4.63
 
     """
     return __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(COURSE_EVAL_BY_CID, dict_cursor, cID)
@@ -99,14 +104,14 @@ def analyze_past_eval_by_cID(dict_cursor, cID):
 def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID):
     """
     >>> analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, 'Faith Ellen', 'CSC240')
-                          CSC240 not taught by Faith Ellen
-    avg_recommend_rating                              3.40
-    avg_deeper_understanding                          4.10
-    avg_intellectually_simulating                     4.00
-    avg_homework_fairness                             3.90
-    avg_home_quality                                  4.00
-    avg_overall_quality                               3.30
-    avg_respondent_percentage                         0.39
+                      CSC240 not taught by Faith Ellen
+    recommend_rating                              3.40
+    deeper_understanding                          4.10
+    intellectually_simulating                     4.00
+    homework_fairness                             3.90
+    home_quality                                  4.00
+    overall_quality                               3.30
+    respondent_percentage                         0.39
     """
     course_by_prof_eval_data = Database.get_past_eval_by_cID_excluding_one_prof(dict_cursor,\
             exclusiveInstructorFullName, cID)
@@ -151,10 +156,25 @@ def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, instr
     return __get_figure_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
 
 def __get_figure_by_dataframe(df, title=None):
-    ax = df.plot(kind='bar', rot=0, alpha=0.75, title=title)
+    """
+    Beatify the layout of the DataFrame, add label to each bar. Then return the
+    figure.
+    """
+    ax = df.plot(kind='bar', rot=0, alpha=0.6, title=title, figsize=(18, 11.12), fontsize=11)
+    ax.legend(loc='best', fancybox=True, framealpha=0.5)
     for p in ax.patches:
         ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
     return plt.gcf()
+
+def convert_figure_to_html(fig):
+    """
+    Convert the figure into a html tag
+    """
+    sio = BytesIO()
+    fig.savefig(sio, format='png')
+    data = base64.encodebytes(sio.getvalue()).decode()
+
+    return '<img src="data:image/png;base64,{}">'.format(data.replace('\n', ''))
 
 if __name__ == '__main__':
     connection = Database.get_connection_with_dict_cursor('../../database.info', 'uoftcourses')
