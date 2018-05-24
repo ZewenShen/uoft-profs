@@ -16,31 +16,43 @@ class Test(unittest.TestCase):
         self.db.close()
 
     def test_get_prof_quality_by_instructorFullName(self):
-        assert Database.get_prof_quality_by_instructorFullName(self.cursor, "David Liu") == {'average_enthusiasm': 4.47, 'average_course_atmosphere': 4.41}
+        assert Database.get_prof_quality_by_instructorFullName(self.cursor, "David Liu") == \
+                        {'home_quality': 4.2,\
+                        'deeper_understanding': 4.21,\
+                        'enthusiasm': 4.47,\
+                        'course_atmosphere': 4.41,\
+                        'homework_fairness': 4.07,\
+                        'overall_quality': 4.0}
 
     def test_get_avg_prof_quality_by_department(self):
-        assert Database.get_avg_prof_quality_by_department(self.cursor, "CSC") == {'average_course_atmosphere': 3.9, 'average_enthusiasm': 3.95}
+        assert Database.get_avg_prof_quality_by_department(self.cursor, "CSC") == \
+                        {'home_quality': 3.95,\
+                        'deeper_understanding': 4.01,\
+                        'enthusiasm': 3.95,\
+                        'course_atmosphere': 3.9,\
+                        'homework_fairness': 3.88,\
+                        'overall_quality': 3.59}
 
     def test_get_past_eval_by_instructorFullName_and_cID(self):
         assert Database.get_past_eval_by_instructorFullName_and_cID(self.cursor, "David Liu", "CSC148") == \
-                        {'avg_home_quality': 4.28,\
-                        'avg_respondent_percentage': 0.37,\
-                        'avg_recommend_rating': 4.22,\
-                        'avg_deeper_understanding': 4.18,\
-                        'avg_intellectually_simulating': 4.08,\
-                        'avg_homework_fairness': 4.15,\
-                        'avg_overall_quality': 4.05\
+                        {'home_quality': 4.28,\
+                        'respondent_percentage': 0.37,\
+                        'recommend_rating': 4.22,\
+                        'deeper_understanding': 4.18,\
+                        'intellectually_simulating': 4.08,\
+                        'homework_fairness': 4.15,\
+                        'overall_quality': 4.05\
                         }
 
     def test_get_past_eval_by_cID_excluding_one_prof(self):
         assert Database.get_past_eval_by_cID_excluding_one_prof(self.cursor, "David Liu", "CSC148") ==\
-                        {'avg_home_quality': 4.13,\
-                        'avg_respondent_percentage': 0.36,\
-                        'avg_recommend_rating': 3.92,\
-                        'avg_deeper_understanding': 4.18,\
-                        'avg_intellectually_simulating': 4.08,\
-                        'avg_homework_fairness': 4.08,\
-                        'avg_overall_quality': 3.8\
+                        {'home_quality': 4.13,\
+                        'respondent_percentage': 0.36,\
+                        'recommend_rating': 3.92,\
+                        'deeper_understanding': 4.18,\
+                        'intellectually_simulating': 4.08,\
+                        'homework_fairness': 4.08,\
+                        'overall_quality': 3.8\
                         }
 
 if __name__ == '__main__':

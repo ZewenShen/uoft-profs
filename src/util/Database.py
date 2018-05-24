@@ -189,13 +189,16 @@ def get_eval_data_by_cID_and_instructor(cursor, cID, instructor):
 def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
     """
     demo:
-    > get_prof_quality_by_fullname(cursor, "David Liu")
+    > get_prof_quality_by_fullname(dict_cursor, "David Liu")
     returns a dictionary
-    {'average_course_atmosphere': 4.41, 'average_enthusiasm': 4.47}
+    {'home_quality': 4.2, 'deeper_understanding': 4.21, 'enthusiasm': 4.47,
+    'course_atmosphere': 4.41, 'homework_fairness': 4.07, 'overall_quality': 4.0}
     """
 
-    sql = "SELECT round(avg(courseAtmosphere), 2) as average_course_atmosphere,\
-    round(avg(enthusiasm), 2) as average_enthusiasm from Eval where instructorFullName = %s"
+    sql = "SELECT round(avg(courseAtmosphere), 2) as course_atmosphere,\
+    round(avg(enthusiasm), 2) as enthusiasm, round(avg(overallQuality), 2) as overall_quality,\
+    round(avg(homeworkQuality), 2) as home_quality, round(avg(homeworkFairness),2) as homework_fairness,\
+    round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where instructorFullName = %s"
 
     dict_cursor.execute(sql, (instructorFullName))
 
@@ -205,15 +208,19 @@ def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
 def get_avg_prof_quality_by_department(dict_cursor, departmentID):
     """
     demo:
-    > get_avg_prof_quality_by_department(cursor, "CSC")
+    > get_avg_prof_quality_by_department(dict_cursor, "CSC")
     returns a dictionary
-    {'average_course_atmosphere': 3.9, 'average_enthusiasm': 3.95}
+    {'home_quality': 3.95, 'deeper_understanding': 4.01, 'enthusiasm': 3.95,
+    'course_atmosphere': 3.9, 'homework_fairness': 3.88, 'overall_quality':
+    3.59}
     -------------------------------------------------------------
     Note: departmentID is the first three char at the beginning of cID.
     """
 
-    sql = "SELECT round(avg(courseAtmosphere), 2) as average_course_atmosphere,\
-    round(avg(enthusiasm), 2) as average_enthusiasm from Eval where cID like %s"
+    sql = "SELECT round(avg(courseAtmosphere), 2) as course_atmosphere,\
+    round(avg(enthusiasm), 2) as enthusiasm, round(avg(overallQuality), 2) as overall_quality,\
+    round(avg(homeworkQuality), 2) as home_quality, round(avg(homeworkFairness),2) as homework_fairness,\
+    round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where cID like %s"
 
     dict_cursor.execute(sql, ("{}%".format(departmentID)))
 
