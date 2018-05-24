@@ -1,4 +1,5 @@
 import pymysql
+import sys
 
 
 def __get_params(path):
