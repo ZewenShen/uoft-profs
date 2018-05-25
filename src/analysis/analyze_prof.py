@@ -151,7 +151,7 @@ def __get_figure_by_dataframe(df, ax, title=None):
     figure.
     """
     try:
-        new_ax = df.plot(ax=ax, kind='bar', rot=0, alpha=0.6, title=title, figsize=(18, 11.12), fontsize=11)
+        new_ax = df.plot(ax=ax, kind='bar', rot=0, alpha=0.6, title=title, figsize=(18, 11.12), fontsize=14)
         new_ax.legend(loc='best', fancybox=True, framealpha=0.5)
         for p in new_ax.patches:
             new_ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
@@ -161,13 +161,13 @@ def __get_figure_by_dataframe(df, ax, title=None):
 
 def convert_figure_to_html(fig):
     """
-    Convert the figure into a html tag
+    Convert the figure into a png in base64 form
     """
     sio = BytesIO()
     fig.savefig(sio, format='png')
     data = base64.encodebytes(sio.getvalue()).decode()
-
-    return '<img src="data:image/png;base64,{}">'.format(data.replace('\n', ''))
+    return data.replace('\n', '')
+    #return '<img src="data:image/png;base64,{}">'.format(data.replace('\n', ''))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -188,10 +188,11 @@ if __name__ == '__main__':
     get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, axes[0], instructorFullName, department)
     get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, axes[1], instructorFullName, cID)
 
+
+    fig = plt.gcf()
+    fig.tight_layout()
     if args.plot:
         plt.show()
     else:
-        fig = plt.gcf()
         print(convert_figure_to_html(fig))
-
-
+        sys.stdout.flush()

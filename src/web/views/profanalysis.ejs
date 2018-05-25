@@ -1,0 +1,49 @@
+<% include partials/header.html %>
+<title>Professor Analysis</title>
+<style type="text/css">
+h1 {
+	text-align: right;
+	font-family: Arial;
+}
+
+#profquery {
+	margin: 0 auto;
+	width: 80%;
+	padding-left: 10%;
+}
+
+</style>
+</head>
+<body>
+	<nav class="navbar navbar-dark bg-dark">
+  		<a class="navbar-brand" href="/">UofT courses</a>
+	</nav>
+	<div class="container">
+		<h1>Analyze your professor!</h1>
+		<form id="profquery" action="/analyzeprof" method="POST">
+		  <div class="form-row align-items-center">
+		    <div class="col-sm-5 my-1">
+		      <label class="sr-only" for="inlineFormInputName">Name</label>
+		      <input type="text" class="form-control" id="inlineFormInputName" name="instructor" placeholder="Instructor full name (e.g., David Liu)" required>
+		    </div>
+		    <div class="col-sm-4 my-1">
+		      <label class="sr-only" for="inlineFormInputGroupUsername">Username</label>
+		      <div class="input-group">
+			<div class="input-group-prepend">
+			  <div class="input-group-text">@</div>
+			</div>
+			<input type="text" class="form-control" id="inlineFormInputGroupUsername" name="course" placeholder="Course ID (e.g., CSC148)" required>
+		      </div>
+		    </div>
+		    <div class="col-auto my-1">
+		      <button type="submit" class="btn btn-primary">Submit</button>
+		    </div>
+		  </div>
+		</form>
+	</div>
+	<div class="container">
+		<img width="100%" src="data:image/png;base64,<%= imgTag %>">
+	</div>
+	
+
+<% include partials/footer.html %>
