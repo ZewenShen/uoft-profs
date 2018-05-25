@@ -1,22 +1,13 @@
 <% include partials/header.html %>
 <title>Professor Analysis</title>
-<style type="text/css">
-h1 {
-	text-align: right;
-	font-family: Arial;
-}
-
-#profquery {
-	margin: 0 auto;
-	width: 80%;
-	padding-left: 10%;
-}
-
-</style>
+<link href="/profanalysis.css" rel="stylesheet">
 </head>
 <body>
-	<nav class="navbar navbar-dark bg-dark">
+	<nav class="navbar navbar-light" style="background-color: #e3f2fd;">
   		<a class="navbar-brand" href="/">UofT courses</a>
+		<span class="navbar-text">
+			<a class="nav-link" href="https://github.com/Walden-Shen/uoft-courses">Github</a>
+		</span>
 	</nav>
 	<div class="container">
 		<h1>Analyze your professor!</h1>
@@ -24,7 +15,7 @@ h1 {
 		  <div class="form-row align-items-center">
 		    <div class="col-sm-5 my-1">
 		      <label class="sr-only" for="inlineFormInputName">Name</label>
-		      <input type="text" class="form-control" id="inlineFormInputName" name="instructor" placeholder="Instructor full name (e.g., David Liu)" required>
+		      <input type="text" class="form-control" id="inlineFormInputName" name="instructor" pattern="[A-Za-z\s]*" title= "Full name of the instructor" placeholder="Instructor full name (e.g., David Liu)" required>
 		    </div>
 		    <div class="col-sm-4 my-1">
 		      <label class="sr-only" for="inlineFormInputGroupUsername">Username</label>
@@ -42,7 +33,10 @@ h1 {
 		</form>
 	</div>
 	<div class="container">
-		<img width="100%" src="data:image/png;base64,<%= imgTag %>">
+		<% if (imgTag != '') { %>
+			<img width="100%" src="data:image/png;base64,<%= imgTag %>">
+		<% } %>
+
 	</div>
 	
 

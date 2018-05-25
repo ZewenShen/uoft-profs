@@ -16,6 +16,7 @@ This library intends to offer course selection advice to students at UofT, e.g.,
 		- [CourseSpider](#coursespider)
 		- [EvalSpider](#evalspider)
 	- [AnalyzeProf](#analyzeprof)
+	- [Web](#web)
 
 ## Requirements
  - [python3](https://www.python.org/downloads/release/python-352/)
@@ -106,3 +107,11 @@ optional arguments:
 #### Demo:
 
 ![profAnalyze](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/prof_analyze_example.png?raw=true)
+
+### Web
+
+Powered by Express.js and Bootstrap.
+
+#### Demo:
+
+![webAnalysis](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/web_analysis_example.png?raw=true)

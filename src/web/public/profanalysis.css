@@ -1,0 +1,15 @@
+h1 {
+	text-align: right;
+	border: 
+}
+
+body {
+	margin: 0 2.5%;
+	font-family: 'Ubuntu', sans-serif;
+}
+
+#profquery {
+	margin: 0 auto;
+	width: 80%;
+	padding-left: 10%;
+}
