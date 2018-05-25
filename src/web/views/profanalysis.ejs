@@ -15,15 +15,16 @@
 		  <div class="form-row align-items-center">
 		    <div class="col-sm-5 my-1">
 		      <label class="sr-only" for="inlineFormInputName">Name</label>
-		      <input type="text" class="form-control" id="inlineFormInputName" name="instructor" pattern="[A-Za-z\s]*" title= "Full name of the instructor" placeholder="Instructor full name (e.g., David Liu)" required>
+		      <input type="text" class="form-control" id="inlineFormInputName"
+			  name="instructor" pattern="[A-Za-z\s]*" title= "Full name of the instructor (case sensitive)" placeholder="Instructor full name (e.g., David Liu)" required>
 		    </div>
 		    <div class="col-sm-4 my-1">
-		      <label class="sr-only" for="inlineFormInputGroupUsername">Username</label>
+		      <label class="sr-only" for="inlineFormInputGroupUsername">CourseID</label>
 		      <div class="input-group">
 			<div class="input-group-prepend">
 			  <div class="input-group-text">@</div>
 			</div>
-			<input type="text" class="form-control" id="inlineFormInputGroupUsername" name="course" placeholder="Course ID (e.g., CSC148)" required>
+			<input type="text" class="form-control" id="inlineFormInputGroupUsername" name="course" pattern="[A-Z]{3}(|\d{3})" title="begins with 3 captital letters, ends with 3 numbers" placeholder="Course ID (e.g., CSC148)" required>
 		      </div>
 		    </div>
 		    <div class="col-auto my-1">
@@ -36,8 +37,26 @@
 		<% if (imgTag != '') { %>
 			<img width="100%" src="data:image/png;base64,<%= imgTag %>">
 		<% } %>
-
+		<h5>Usage:</h5>
+		<ul>
+			<li>If the result returned is partly ploted or not ploted, there are
+			several potential reasons:
+				<ol>
+					<li>Something is wrong with the database or the backend.</li>
+					<li>There is a typo in your input (it's case sensitive). Please make sure your input
+					value can be found in Blackboard's course eval module.</li>
+					<li>The instructor didn't teach that course in the past five
+					years. In this case, the result will be partly ploted.</li>
+				</ol>
+			</li>
+			<li>Tricky way to use the system: If you only want to compare one
+			professor with the entire department's profs, type the first three letter of
+			that department (e.g., CSC) in the courseID field.</li>
+			<li>Please don't hack the server for fun.</li>
+			<li>If you want some other analysis, feel free to open an issue on
+			the <a href="https://github.com/Walden-Shen/uoft-courses">github
+			page</a>.</li>
+		</ul>
 	</div>
-	
 
 <% include partials/footer.html %>
