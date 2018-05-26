@@ -2,7 +2,8 @@ import sys
 sys.path.append('../util')
 import Database as db
 import coursespider.cspider as cs
-import evalspider.espider as es
+import evalspider.utsg_espider as sges
+import evalspider.utm_espider as mes
 import argparse
 
 DB_NAME = 'uoftcourses'
@@ -22,4 +23,5 @@ if __name__ == '__main__':
         cs.main()
 
     if args.eval:
-        es.main()
+        sges.main()
+        mes.main()
