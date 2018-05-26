@@ -18,10 +18,11 @@ app.get("/", function(req, res) {
 app.get("/profanalysis", function(req, res) {
 	instructor = req.query.instructor;
 	course = req.query.course;
-	if (instructor == undefined || course == undefined || !/^[A-Za-z\s]*$/.test(instructor) || !/^[A-Z]{3}\d?\d?\d?$/.test(course)) {
+	campus = req.query.campus;
+	if (instructor == undefined || course == undefined || !/^[A-Za-z\s]*$/.test(instructor) || !/^[A-Z]{3}\d?\d?\d?$/.test(course) || (campus != 'St. George' && campus != 'Mississauga')) {
 		res.render("profanalysis", {imgTag: ''});
 	} else {
-		var pythonTerminal = util.format("python3 %s '%s' %s", ANALYZE_PROF_PATH, instructor, course);
+		var pythonTerminal = util.format("python3 %s '%s' %s '%s'", ANALYZE_PROF_PATH, instructor, course, campus);
 		exec(pythonTerminal, function(err, stdout, stderr) {
 			if (err) {
 				console.log('get plot err:' + stderr);
@@ -34,7 +35,7 @@ app.get("/profanalysis", function(req, res) {
 });
 
 app.post("/analyzeprof", function(req, res) {
-	var profInput = {instructor: req.body.instructor, course: req.body.course};
+	var profInput = {instructor: req.body.instructor, course: req.body.course, campus: req.body.campus};
 	var query = querystring.stringify(profInput);
 	res.redirect("/profanalysis?" + query);
 });

@@ -13,7 +13,7 @@
 		<h1>Analyze your professor!</h1>
 		<form id="profquery" action="/analyzeprof" method="POST">
 		  <div class="form-row align-items-center">
-		    <div class="col-sm-5 my-1">
+		    <div class="col-sm-4 my-1">
 		      <label class="sr-only" for="inlineFormInputName">Name</label>
 		      <input type="text" class="form-control" id="inlineFormInputName"
 			  name="instructor" pattern="[A-Za-z\s]*" title= "Full name of the instructor (case sensitive)" placeholder="Instructor full name (e.g., David Liu)" required>
@@ -27,6 +27,11 @@
 			<input type="text" class="form-control" id="inlineFormInputGroupUsername" name="course" pattern="[A-Z]{3}(|\d{3})" title="begins with 3 captital letters, ends with 3 numbers" placeholder="Course ID (e.g., CSC148)" required>
 		      </div>
 		    </div>
+			<br>
+			<select name="campus">
+				<option value="St. George">St. George</option>
+				<option value="Mississauga">Mississauga</option>
+			</select>
 		    <div class="col-auto my-1">
 		      <button type="submit" class="btn btn-primary">Submit</button>
 		    </div>
@@ -59,8 +64,8 @@
 					must be "impressive".</li>
 				</ul>
 			</li>
-			<li>The database only contains UTSG art & sci's evaluation data,
-			from 2012 fall to 2017 fall.</li>
+			<li>The database only contains UTSG+UTM undergraduates' evaluation
+			data (excluding engineering), from 2012 fall to 2017 fall.</li>
 			<li>Tricky way to use the system: If you only want to compare one
 			professor with the entire department's profs, type the first three letter of
 			that department (e.g., CSC) in the courseID field.</li>
