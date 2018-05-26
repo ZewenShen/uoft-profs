@@ -136,7 +136,6 @@ def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, ax, i
     Plot the prof vs other profs DataFrame in python.
     """
     df = __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID)
-    #return __get_figure_by_dataframe(df, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
     __get_figure_by_dataframe(df, ax, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
 
 def get_figure(dict_cursor, instructorFullName, cID, departmentID):
@@ -157,7 +156,6 @@ def __get_figure_by_dataframe(df, ax, title=None):
             new_ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
     except TypeError as e:
         print("Unable to plot. Please check your data", file=sys.stdout)
-    #return plt.gcf()
 
 def convert_figure_to_html(fig):
     """
