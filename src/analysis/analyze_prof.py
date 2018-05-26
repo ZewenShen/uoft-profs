@@ -7,49 +7,53 @@ from io import BytesIO
 import base64
 import argparse
 
-PROF_QUALITY_BY_PNAME = 1 # index of DB_GETMETHOD_WITH_ONE_ARG
-DEPARTMENT_QUALITY_BY_DID = 2 # index of DB_GETMETHOD_WITH_ONE_ARG
-COURSE_EVAL_BY_INSTRUCTOR_AND_CID = 3 # index of DB_GETMETHOD_WITH_TWO_ARGS
-COURSE_EVAL_BY_CID_EXCLUDING_PROF = 4 # index of DB_GETMETHOD_WITH_TWO_ARGS
+PROF_QUALITY_BY_PNAME = 1 # index of DB_GETMETHOD_WITH_TWO_ARGS
+DEPARTMENT_QUALITY_BY_DID = 2 # index of DB_GETMETHOD_WITH_TWO_ARGS
 COURSE_EVAL_BY_CID = 5
 
-DB_GETMETHOD_WITH_ONE_ARG = {\
+DB_GETMETHOD_WITH_TWO_ARGS = {\
     PROF_QUALITY_BY_PNAME: Database.get_prof_quality_by_instructorFullName,\
     DEPARTMENT_QUALITY_BY_DID: Database.get_avg_prof_quality_by_department,\
     COURSE_EVAL_BY_CID: Database.get_past_eval_by_cID
 } # used by __analyze_data_by_DB_GETMETHOD_DICT
    
 
-def __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(get_type, dict_cursor, arg):
+def __analyze_data_by_DB_GETMETHOD_WITH_TWO_ARGS(get_type, dict_cursor, *args):
     """
     A generalized helper function used to return DataFrame
     """
-    data = DB_GETMETHOD_WITH_ONE_ARG[get_type](dict_cursor, arg)
-    df = pd.DataFrame(list(data.values()), columns=[arg], index=list(data.keys()))
+    assert len(args) == 2
+    data = DB_GETMETHOD_WITH_TWO_ARGS[get_type](dict_cursor, args[0], args[1])
+    if args[1] != "St. George":
+        del data['enthusiasm']
+    df = pd.DataFrame(list(data.values()), columns=[args[0]], index=list(data.keys()))
     return df
 
-def analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
+def analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName, campus):
     """
-    >>> analyze_prof_quality_by_instructorFullName(dict_cursor, 'David Liu')
+    >>> analyze_prof_quality_by_instructorFullName(dict_cursor, 'David Liu', 'St. George')
                                David Liu
-    average_enthusiasm              4.47
-    average_course_atmosphere       4.41
+    enthusiasm              4.47
+    course_atmosphere       4.41
+    ...
+    (This is not complete)
     """
-    return __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(PROF_QUALITY_BY_PNAME, dict_cursor, instructorFullName)
+    return __analyze_data_by_DB_GETMETHOD_WITH_TWO_ARGS(PROF_QUALITY_BY_PNAME, dict_cursor, instructorFullName, campus)
 
-def analyze_avg_prof_quality_by_department(dict_cursor, departmentID):
+def analyze_avg_prof_quality_by_department(dict_cursor, departmentID, campus):
     """
-    >>> analyze_avg_prof_quality_by_department(dict_cursor, 'CSC')
+    >>> analyze_avg_prof_quality_by_department(dict_cursor, 'CSC', 'St. George')
                                 CSC
-    average_enthusiasm         3.95
-    average_course_atmosphere  3.90
-
+    enthusiasm         3.95
+    course_atmosphere  3.90
+    ...
+    (This is not complete)
     """
-    return __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(DEPARTMENT_QUALITY_BY_DID, dict_cursor, departmentID)
+    return __analyze_data_by_DB_GETMETHOD_WITH_TWO_ARGS(DEPARTMENT_QUALITY_BY_DID, dict_cursor, departmentID, campus)
 
-def analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID):
+def analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID, campus):
     """
-    >>> analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, 'David Liu', 'CSC148')
+    >>> analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, 'David Liu', 'CSC148', 'St. George')
                                    David Liu's CSC148
         overall_quality                          4.05
         intellectually_simulating                4.08
@@ -61,16 +65,16 @@ def analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullN
 
     """
     course_by_prof_eval_data = Database.get_past_eval_by_instructorFullName_and_cID(dict_cursor,\
-            instructorFullName, cID)
+            instructorFullName, cID, campus)
     
     course_by_prof_df = pd.DataFrame(list(course_by_prof_eval_data.values()), columns =\
             ["{}'s {}".format(instructorFullName, cID)], index=list(course_by_prof_eval_data.keys()))
 
     return course_by_prof_df
 
-def analyze_past_eval_by_cID(dict_cursor, cID):
+def analyze_past_eval_by_cID(dict_cursor, cID, campus):
     """
-    >>> analyze_past_eval_by_cID(dict_cursor, 'CSC265')
+    >>> analyze_past_eval_by_cID(dict_cursor, 'CSC265', 'St. George')
                                    CSC265
         overall_quality              4.47
         intellectually_simulating    4.68
@@ -81,11 +85,11 @@ def analyze_past_eval_by_cID(dict_cursor, cID):
         home_quality                 4.63
 
     """
-    return __analyze_data_by_DB_GETMETHOD_WITH_ONE_ARG(COURSE_EVAL_BY_CID, dict_cursor, cID)
+    return __analyze_data_by_DB_GETMETHOD_WITH_TWO_ARGS(COURSE_EVAL_BY_CID, dict_cursor, cID, campus)
 
-def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID):
+def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID, campus):
     """
-    >>> analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, 'Faith Ellen', 'CSC240')
+    >>> analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, 'Faith Ellen', 'CSC240', 'St. George')
                       CSC240 not taught by Faith Ellen
     recommend_rating                              3.40
     deeper_understanding                          4.10
@@ -96,51 +100,51 @@ def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructor
     respondent_percentage                         0.39
     """
     course_by_prof_eval_data = Database.get_past_eval_by_cID_excluding_one_prof(dict_cursor,\
-            exclusiveInstructorFullName, cID)
+            exclusiveInstructorFullName, cID, campus)
     
     course_by_prof_df = pd.DataFrame(list(course_by_prof_eval_data.values()), columns =\
             ["{} not taught by {}".format(cID, exclusiveInstructorFullName)], index=list(course_by_prof_eval_data.keys()))
 
     return course_by_prof_df
 
-def __get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID):
+def __get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID, campus):
     """
     Get the dataframe of selected prof's evaluation and the evaluation of avg
     profs in selected department.
     """
-    df1 = analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName)
-    df2 = analyze_avg_prof_quality_by_department(dict_cursor, departmentID)
+    df1 = analyze_prof_quality_by_instructorFullName(dict_cursor, instructorFullName, campus)
+    df2 = analyze_avg_prof_quality_by_department(dict_cursor, departmentID, campus)
     df = pd.concat([df1, df2], axis=1)
     return df
 
-def __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID):
+def __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID, campus):
     """
     Get the dataframe of selected prof's evaluation and
     the avg evaluation of other profs who taught that course before.
     """
-    df1 = analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID)
-    df2 = analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, instructorFullName, cID)
+    df1 = analyze_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID, campus)
+    df2 = analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, instructorFullName, cID, campus)
     df = pd.concat([df1, df2], axis=1)
     return df
 
-def get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, ax, instructorFullName, departmentID):
+def get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, ax, instructorFullName, departmentID, campus):
     """
     Plot the prof vs avg prof in department DataFrame in python.
     """
-    df = __get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID)
+    df = __get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID, campus)
     #return __get_figure_by_dataframe(df, title="Prof {} vs {} department".format(instructorFullName, departmentID))
     __get_figure_by_dataframe(df, ax, title="Prof {} vs {} department".format(instructorFullName, departmentID))
 
-def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, ax, instructorFullName, cID):
+def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, ax, instructorFullName, cID, campus):
     """
     Plot the prof vs other profs DataFrame in python.
     """
-    df = __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID)
+    df = __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID, campus)
     __get_figure_by_dataframe(df, ax, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
 
-def get_figure(dict_cursor, instructorFullName, cID, departmentID):
-    get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID)
-    get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID)
+def get_figure(dict_cursor, instructorFullName, cID, departmentID, campus):
+    get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID, campus)
+    get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID, campus)
     plt.legend(loc='best')
     plt.show()
 
@@ -172,19 +176,21 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--plot', help = "Plot the graph in GUI mod (if this flag is not set on, an html img tag will be printed to stdout)", action = "store_true")
     parser.add_argument('instructor', help = "The full name of instructor")
     parser.add_argument('courseID', help = "The id of course, e.g., CSC240")
+    parser.add_argument('campus', help = "The campus where the instructor stays")
     args = parser.parse_args()
 
     instructorFullName = args.instructor
     cID = args.courseID
     department = cID[0: 3]
+    campus = args.campus
 
     connection = Database.get_connection_with_dict_cursor('../../database.info', 'uoftcourses')
     dict_cursor = connection.cursor()
 
     fig, axes = plt.subplots(nrows=2, ncols=1)
 
-    get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, axes[0], instructorFullName, department)
-    get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, axes[1], instructorFullName, cID)
+    get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, axes[0], instructorFullName, department, campus)
+    get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, axes[1], instructorFullName, cID, campus)
 
 
     fig = plt.gcf()
