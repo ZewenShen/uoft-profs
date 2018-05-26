@@ -18,7 +18,7 @@ app.get("/", function(req, res) {
 app.get("/profanalysis", function(req, res) {
 	instructor = req.query.instructor;
 	course = req.query.course;
-	if (instructor == undefined || course == undefined) {
+	if (instructor == undefined || course == undefined || !/^[A-Za-z\s]*$/.test(instructor) || !/^[A-Z]{3}\d?\d?\d?$/.test(course)) {
 		res.render("profanalysis", {imgTag: ''});
 	} else {
 		var pythonTerminal = util.format("python3 %s '%s' %s", ANALYZE_PROF_PATH, instructor, course);
@@ -36,7 +36,6 @@ app.get("/profanalysis", function(req, res) {
 app.post("/analyzeprof", function(req, res) {
 	var profInput = {instructor: req.body.instructor, course: req.body.course};
 	var query = querystring.stringify(profInput);
-	//console.log(query);
 	res.redirect("/profanalysis?" + query);
 });
 
