@@ -186,7 +186,7 @@ def get_eval_data_by_cID_and_instructor(cursor, cID, instructor):
     return list(cursor.fetchall())
 
 
-def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
+def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName, campus):
     """
     demo:
     > get_prof_quality_by_fullname(dict_cursor, "David Liu")
@@ -198,14 +198,15 @@ def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName):
     sql = "SELECT round(avg(courseAtmosphere), 2) as course_atmosphere,\
     round(avg(enthusiasm), 2) as enthusiasm, round(avg(overallQuality), 2) as overall_quality,\
     round(avg(homeworkQuality), 2) as home_quality, round(avg(homeworkFairness),2) as homework_fairness,\
-    round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where instructorFullName = %s"
+    round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where\
+    instructorFullName = %s and campus = %s"
 
-    dict_cursor.execute(sql, (instructorFullName))
+    dict_cursor.execute(sql, (instructorFullName, campus))
 
     return dict_cursor.fetchone()
 
 
-def get_avg_prof_quality_by_department(dict_cursor, departmentID):
+def get_avg_prof_quality_by_department(dict_cursor, departmentID, campus):
     """
     demo:
     > get_avg_prof_quality_by_department(dict_cursor, "CSC")
@@ -220,23 +221,25 @@ def get_avg_prof_quality_by_department(dict_cursor, departmentID):
     sql = "SELECT round(avg(courseAtmosphere), 2) as course_atmosphere,\
     round(avg(enthusiasm), 2) as enthusiasm, round(avg(overallQuality), 2) as overall_quality,\
     round(avg(homeworkQuality), 2) as home_quality, round(avg(homeworkFairness),2) as homework_fairness,\
-    round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where cID like %s"
+    round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where\
+    cID like %s and campus = %s"
 
-    dict_cursor.execute(sql, ("{}%".format(departmentID)))
+    dict_cursor.execute(sql, ("{}%".format(departmentID), campus))
 
     return dict_cursor.fetchone()
 
 
-def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID):
+def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID, campus):
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
     home_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
     round(avg(overallQuality), 2) as overall_quality, round(avg(recommend),\
     2) as recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
-    respondent_percentage from Eval where instructorFullName = %s and cID like %s"
+    respondent_percentage from Eval where instructorFullName = %s and cID like\
+    %s and campus = %s"
 
-    dict_cursor.execute(sql, (instructorFullName, "{}%".format(cID)))
+    dict_cursor.execute(sql, (instructorFullName, "{}%".format(cID), campus))
 
     result = dict_cursor.fetchone()
     try:
@@ -246,16 +249,16 @@ def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName,
     return result
 
 
-def get_past_eval_by_cID(dict_cursor, cID):
+def get_past_eval_by_cID(dict_cursor, cID, campus):
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     avg_deeper_understanding, round(avg(homeworkQuality), 2) as\
     avg_home_quality, round(avg(homeworkFairness), 2) as avg_homework_fairness,\
     round(avg(overallQuality), 2) as avg_overall_quality, round(avg(recommend),\
     2) as avg_recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
-    avg_respondent_percentage from Eval where cID like %s"
+    avg_respondent_percentage from Eval where cID like %s and campus = %s"
 
-    dict_cursor.execute(sql, ("{}%".format(cID)))
+    dict_cursor.execute(sql, ("{}%".format(cID), campus))
 
     result = dict_cursor.fetchone()
     try:
@@ -265,16 +268,16 @@ def get_past_eval_by_cID(dict_cursor, cID):
     return result
 
 
-def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID):
+def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID, campus):
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
     home_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
     round(avg(overallQuality), 2) as overall_quality, round(avg(recommend),\
     2) as recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
-    respondent_percentage from Eval where instructorFullName <> %s and cID like %s"
+    respondent_percentage from Eval where instructorFullName <> %s and cID like %s and campus = %s"
 
-    dict_cursor.execute(sql, (exclusiveInstructorFullName, "{}%".format(cID)))
+    dict_cursor.execute(sql, (exclusiveInstructorFullName, "{}%".format(cID), campus))
 
     result = dict_cursor.fetchone()
     try:
