@@ -198,7 +198,7 @@ def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName, camp
     sql = "SELECT round(avg(courseAtmosphere), 2) as course_atmosphere,\
     round(avg(enthusiasm), 2) as enthusiasm, round(avg(overallQuality), 2) as overall_quality,\
     round(avg(homeworkQuality), 2) as homework_quality, round(avg(homeworkFairness),2) as homework_fairness,\
-    round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where\
+    round(avg(deeperUnderstanding), 2) as deeper_understanding, round(avg(workload), 2) as workload from Eval where\
     instructorFullName = %s and campus = %s"
 
     dict_cursor.execute(sql, (instructorFullName, campus))
@@ -221,7 +221,7 @@ def get_avg_prof_quality_by_department(dict_cursor, departmentID, campus):
     sql = "SELECT round(avg(courseAtmosphere), 2) as course_atmosphere,\
     round(avg(enthusiasm), 2) as enthusiasm, round(avg(overallQuality), 2) as overall_quality,\
     round(avg(homeworkQuality), 2) as homework_quality, round(avg(homeworkFairness),2) as homework_fairness,\
-    round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where\
+    round(avg(deeperUnderstanding), 2) as deeper_understanding, round(avg(workload), 2) as workload from Eval where\
     cID like %s and campus = %s"
 
     dict_cursor.execute(sql, ("{}%".format(departmentID), campus))
@@ -236,7 +236,7 @@ def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName,
     homework_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
     round(avg(overallQuality), 2) as overall_quality, round(avg(recommend),\
     2) as recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
-    respondent_percentage from Eval where instructorFullName = %s and cID like\
+    respondent_percentage, round(avg(workload), 2) as workload from Eval where instructorFullName = %s and cID like\
     %s and campus = %s"
 
     dict_cursor.execute(sql, (instructorFullName, "{}%".format(cID), campus))
@@ -275,7 +275,7 @@ def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFull
     homework_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
     round(avg(overallQuality), 2) as overall_quality, round(avg(recommend),\
     2) as recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
-    respondent_percentage from Eval where instructorFullName <> %s and cID like %s and campus = %s"
+    respondent_percentage, round(avg(workload), 2) as workload from Eval where instructorFullName <> %s and cID like %s and campus = %s"
 
     dict_cursor.execute(sql, (exclusiveInstructorFullName, "{}%".format(cID), campus))
 
@@ -291,6 +291,5 @@ def get_avg_course_eval_by_cID(dict_cursor, cID, campus):
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
     homework_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
-    round(avg(overallQuality), 2) as overall_quality, round(avg(recommend),\
-    2) as recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
-    respondent_percentage from Eval where instructorFullName <> %s and cID like %s and campus = %s"
+    round(avg(overallQuality), 2) as overall_quality, round(avg(workload), 2) as workload, round(avg(recommend),\
+    2) as recommend_rating from Eval where and cID like %s and campus = %s"
