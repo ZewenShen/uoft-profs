@@ -292,4 +292,19 @@ def get_avg_course_eval_by_cID(dict_cursor, cID, campus):
     deeper_understanding, round(avg(homeworkQuality), 2) as\
     homework_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
     round(avg(overallQuality), 2) as overall_quality, round(avg(workload), 2) as workload, round(avg(recommend),\
+    2) as recommend_rating from Eval where cID like %s and campus = %s"
+
+    dict_cursor.execute(sql, ("{}%".format(cID), campus))
+    return dict_cursor.fetchone()
+
+def get_avg_course_eval_by_department(dict_cursor, departmentID, campus):
+    sql = "SELECT round(avg(intellectuallySimulating), 2) as\
+    intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
+    deeper_understanding, round(avg(homeworkQuality), 2) as\
+    homework_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
+    round(avg(overallQuality), 2) as overall_quality, round(avg(workload), 2) as workload, round(avg(recommend),\
     2) as recommend_rating from Eval where and cID like %s and campus = %s"
+
+    dict_cursor.execute(sql, ("{}%".format(departmentID), campus))
+    return dict_cursor.fetchone()
+

@@ -115,4 +115,6 @@ Powered by Express.js and Bootstrap.
 
 #### Demo:
 
+[webpage](http://uoftcourses.zewen.org)
+
 ![webAnalysis](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/web_analysis_example.png?raw=true)

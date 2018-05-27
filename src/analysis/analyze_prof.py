@@ -107,6 +107,22 @@ def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructor
 
     return course_by_prof_df
 
+def analyze_course_quality_by_cID(dict_cursor, cID, campus):
+    course_quality_by_cID = Database.get_avg_course_eval_by_cID(dict_cursor, cID, campus)
+
+    course_quality_by_cID_df = pd.DataFrame(list(course_quality_by_cID.values()), columns =\
+            ["avg course quality of {}".format(cID)], index=list(course_quality_by_cID.keys()))
+
+    return course_quality_by_cID_df
+
+def analyze_course_quality_by_department(dict_cursor, departmentID, campus):
+    course_quality_by_departmentID = Database.get_avg_course_eval_by_cID(dict_cursor, departmentID, campus)
+
+    course_quality_by_departmentID_df = pd.DataFrame(list(course_quality_by_departmentID.values()), columns =\
+            ["avg course quality of {} department".format(cID)], index=list(course_quality_by_departmentID.keys()))
+
+    return course_quality_by_departmentID_df
+
 def __get_dataframe_by_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID, campus):
     """
     Get the dataframe of selected prof's evaluation and the evaluation of avg
@@ -127,6 +143,13 @@ def __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructor
     df = pd.concat([df1, df2], axis=1)
     return df
 
+def __get_dataframe_by_contrasting_course_with_other_courses(dict_cursor, cID, campus):
+    departmentID = cID[:3]
+    df1 = analyze_course_quality_by_cID(dict_cursor, cID, campus)
+    df2 = analyze_course_quality_by_department(dict_cursor, departmentID, campus)
+    df = pd.concat([df1, df2], axis=1)
+    return df
+
 def get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, ax, instructorFullName, departmentID, campus):
     """
     Plot the prof vs avg prof in department DataFrame in python.
@@ -141,6 +164,10 @@ def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, ax, i
     """
     df = __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructorFullName, cID, campus)
     __get_figure_by_dataframe(df, ax, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
+
+def get_figure_of_dataframe_contrasting_course_with_other_courses(dict_cursor, ax, cID, campus):
+    df = __get_dataframe_by_contrasting_course_with_other_courses(dict_cursor, cID, campus)
+    __get_figure_by_dataframe(df, ax, title="{} vs other courses taught in {} department".format(cID, cID[:3]))
 
 def get_figure(dict_cursor, instructorFullName, cID, departmentID, campus):
     get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, instructorFullName, departmentID, campus)
@@ -187,10 +214,11 @@ if __name__ == '__main__':
     connection = Database.get_connection_with_dict_cursor('../../database.info', 'uoftcourses')
     dict_cursor = connection.cursor()
 
-    fig, axes = plt.subplots(nrows=2, ncols=1)
+    fig, axes = plt.subplots(nrows=3, ncols=1)
 
     get_figure_of_dataframe_contrasting_prof_with_department(dict_cursor, axes[0], instructorFullName, department, campus)
     get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, axes[1], instructorFullName, cID, campus)
+    get_figure_of_dataframe_contrasting_course_with_other_courses(dict_cursor, axes[2], cID, campus)
 
 
     fig = plt.gcf()
