@@ -191,13 +191,13 @@ def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName, camp
     demo:
     > get_prof_quality_by_fullname(dict_cursor, "David Liu")
     returns a dictionary
-    {'home_quality': 4.2, 'deeper_understanding': 4.21, 'enthusiasm': 4.47,
+    {'homework_quality': 4.2, 'deeper_understanding': 4.21, 'enthusiasm': 4.47,
     'course_atmosphere': 4.41, 'homework_fairness': 4.07, 'overall_quality': 4.0}
     """
 
     sql = "SELECT round(avg(courseAtmosphere), 2) as course_atmosphere,\
     round(avg(enthusiasm), 2) as enthusiasm, round(avg(overallQuality), 2) as overall_quality,\
-    round(avg(homeworkQuality), 2) as home_quality, round(avg(homeworkFairness),2) as homework_fairness,\
+    round(avg(homeworkQuality), 2) as homework_quality, round(avg(homeworkFairness),2) as homework_fairness,\
     round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where\
     instructorFullName = %s and campus = %s"
 
@@ -211,7 +211,7 @@ def get_avg_prof_quality_by_department(dict_cursor, departmentID, campus):
     demo:
     > get_avg_prof_quality_by_department(dict_cursor, "CSC")
     returns a dictionary
-    {'home_quality': 3.95, 'deeper_understanding': 4.01, 'enthusiasm': 3.95,
+    {'homework_quality': 3.95, 'deeper_understanding': 4.01, 'enthusiasm': 3.95,
     'course_atmosphere': 3.9, 'homework_fairness': 3.88, 'overall_quality':
     3.59}
     -------------------------------------------------------------
@@ -220,7 +220,7 @@ def get_avg_prof_quality_by_department(dict_cursor, departmentID, campus):
 
     sql = "SELECT round(avg(courseAtmosphere), 2) as course_atmosphere,\
     round(avg(enthusiasm), 2) as enthusiasm, round(avg(overallQuality), 2) as overall_quality,\
-    round(avg(homeworkQuality), 2) as home_quality, round(avg(homeworkFairness),2) as homework_fairness,\
+    round(avg(homeworkQuality), 2) as homework_quality, round(avg(homeworkFairness),2) as homework_fairness,\
     round(avg(deeperUnderstanding), 2) as deeper_understanding from Eval where\
     cID like %s and campus = %s"
 
@@ -233,7 +233,7 @@ def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName,
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
-    home_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
+    homework_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
     round(avg(overallQuality), 2) as overall_quality, round(avg(recommend),\
     2) as recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
     respondent_percentage from Eval where instructorFullName = %s and cID like\
@@ -272,7 +272,7 @@ def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFull
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
-    home_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
+    homework_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
     round(avg(overallQuality), 2) as overall_quality, round(avg(recommend),\
     2) as recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
     respondent_percentage from Eval where instructorFullName <> %s and cID like %s and campus = %s"
@@ -285,3 +285,12 @@ def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFull
     except TypeError as e:
         print(e.args[0], ". Maybe the cID or prof doesn't exist in uoft.", file=sys.stderr)
     return result
+
+def get_avg_course_eval_by_cID(dict_cursor, cID, campus):
+    sql = "SELECT round(avg(intellectuallySimulating), 2) as\
+    intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
+    deeper_understanding, round(avg(homeworkQuality), 2) as\
+    homework_quality, round(avg(homeworkFairness), 2) as homework_fairness,\
+    round(avg(overallQuality), 2) as overall_quality, round(avg(recommend),\
+    2) as recommend_rating, round(avg(numResponded)/avg(numInvited), 2) as\
+    respondent_percentage from Eval where instructorFullName <> %s and cID like %s and campus = %s"
