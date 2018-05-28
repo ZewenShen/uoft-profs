@@ -22,7 +22,7 @@ headers = {
 all_courses_params = {
     'queryText': '',
     'requirements': '',
-    'campusParam': 'St. George,Scarborough,Mississaga'
+    'campusParam': 'St. George,Scarborough,Mississuaga'
 }
 
 COMMIT_BUFFER = 15
