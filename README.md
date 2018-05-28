@@ -7,7 +7,7 @@ This library intends to offer course selection advice to students at UofT, e.g.,
   - [ ] Given all the courses one want to take in a semester, return a best time table based on time conflicts, course evaluation, etc.
   - [ ] Recommend courses in one's free time slots
   - [x] Analyze course evaluation data from BlackBoard
-  - [ ] Publish this service to the Internet
+  - [x] Publish this service to the Internet
 
 ## Table of Contents
 - [Requirements](#requirements)

@@ -108,6 +108,10 @@ def analyze_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructor
     return course_by_prof_df
 
 def analyze_course_quality_by_cID(dict_cursor, cID, campus):
+    """
+    First query the given course's eval data from database, then convert it into
+    a DataFrame.
+    """
     course_quality_by_cID = Database.get_avg_course_eval_by_cID(dict_cursor, cID, campus)
 
     course_quality_by_cID_df = pd.DataFrame(list(course_quality_by_cID.values()), columns =\
@@ -116,6 +120,10 @@ def analyze_course_quality_by_cID(dict_cursor, cID, campus):
     return course_quality_by_cID_df
 
 def analyze_course_quality_by_department(dict_cursor, departmentID, campus):
+    """
+    First query the average evaluation data in that department from database, then convert it into
+    a DataFrame.
+    """
     course_quality_by_departmentID = Database.get_avg_course_eval_by_cID(dict_cursor, departmentID, campus)
 
     course_quality_by_departmentID_df = pd.DataFrame(list(course_quality_by_departmentID.values()), columns =\
@@ -144,6 +152,10 @@ def __get_dataframe_by_contrasting_prof_with_other_profs(dict_cursor, instructor
     return df
 
 def __get_dataframe_by_contrasting_course_with_other_courses(dict_cursor, cID, campus):
+    """
+    Get the dataframe of selected course's evaluation and
+    the avg evaluation of other courses who taught in that department.
+    """
     departmentID = cID[:3]
     df1 = analyze_course_quality_by_cID(dict_cursor, cID, campus)
     df2 = analyze_course_quality_by_department(dict_cursor, departmentID, campus)
@@ -166,6 +178,9 @@ def get_figure_of_dataframe_contrasting_prof_with_other_profs(dict_cursor, ax, i
     __get_figure_by_dataframe(df, ax, title="Prof {} vs other profs who taught {}".format(instructorFullName, cID))
 
 def get_figure_of_dataframe_contrasting_course_with_other_courses(dict_cursor, ax, cID, campus):
+    """
+    Plot the course vs other courses DataFrame in python.
+    """
     df = __get_dataframe_by_contrasting_course_with_other_courses(dict_cursor, cID, campus)
     __get_figure_by_dataframe(df, ax, title="{} vs other courses taught in {} department".format(cID, cID[:3]))
 

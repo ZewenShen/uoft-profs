@@ -3,6 +3,9 @@ import sys
 
 
 def __get_params(path):
+    """
+    get the information about database path, username, password, etc.
+    """
     f = open(path, 'r')
     params = f.readlines()
     f.close()
@@ -12,6 +15,9 @@ def __get_params(path):
 
 
 def init_db(path, DB_NAME): # Should be called when this project is executed first time
+    """
+    Create all the table needed for the scraping.
+    """
     params = __get_params(path)
     connection = pymysql.connect(host = params[0], user = params[1], password = params[2], port = params[3])
     cursor = connection.cursor()
@@ -51,6 +57,10 @@ def get_connection(path, DB_NAME):
     return connection
 
 def get_connection_with_dict_cursor(path, DB_NAME):
+    """
+    Dict cursor can return data from database in a dict form, which is nicer.
+    """
+
     params = __get_params(path)
     connection = pymysql.connect(host = params[0], user = params[1], password =\
             params[2], port = params[3], db = DB_NAME,\
@@ -189,7 +199,7 @@ def get_eval_data_by_cID_and_instructor(cursor, cID, instructor):
 def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName, campus):
     """
     demo:
-    > get_prof_quality_by_fullname(dict_cursor, "David Liu")
+    > get_prof_quality_by_fullname(dict_cursor, "David Liu", "St. George")
     returns a dictionary
     {'homework_quality': 4.2, 'deeper_understanding': 4.21, 'enthusiasm': 4.47,
     'course_atmosphere': 4.41, 'homework_fairness': 4.07, 'overall_quality': 4.0}
@@ -209,7 +219,7 @@ def get_prof_quality_by_instructorFullName(dict_cursor, instructorFullName, camp
 def get_avg_prof_quality_by_department(dict_cursor, departmentID, campus):
     """
     demo:
-    > get_avg_prof_quality_by_department(dict_cursor, "CSC")
+    > get_avg_prof_quality_by_department(dict_cursor, "CSC", "St. George")
     returns a dictionary
     {'homework_quality': 3.95, 'deeper_understanding': 4.01, 'enthusiasm': 3.95,
     'course_atmosphere': 3.9, 'homework_fairness': 3.88, 'overall_quality':
@@ -230,6 +240,10 @@ def get_avg_prof_quality_by_department(dict_cursor, departmentID, campus):
 
 
 def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName, cID, campus):
+    """
+    Get information from table Eval about how the given course was held by the given instructor.
+    """
+
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
@@ -250,6 +264,10 @@ def get_past_eval_by_instructorFullName_and_cID(dict_cursor, instructorFullName,
 
 
 def get_past_eval_by_cID(dict_cursor, cID, campus):
+    """
+    Get information from table Eval about how the given course was held.
+    """
+
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     avg_intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     avg_deeper_understanding, round(avg(homeworkQuality), 2) as\
@@ -269,6 +287,10 @@ def get_past_eval_by_cID(dict_cursor, cID, campus):
 
 
 def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFullName, cID, campus):
+    """
+    Get information from table Eval about how the other profs hold that given course.
+    """
+
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
@@ -287,6 +309,10 @@ def get_past_eval_by_cID_excluding_one_prof(dict_cursor, exclusiveInstructorFull
     return result
 
 def get_avg_course_eval_by_cID(dict_cursor, cID, campus):
+    """
+    Get information from table Eval about how the given course was held.
+    """
+
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
@@ -298,6 +324,11 @@ def get_avg_course_eval_by_cID(dict_cursor, cID, campus):
     return dict_cursor.fetchone()
 
 def get_avg_course_eval_by_department(dict_cursor, departmentID, campus):
+    """
+    Get information from table Eval about how the average department course was
+    held.
+    """
+
     sql = "SELECT round(avg(intellectuallySimulating), 2) as\
     intellectually_simulating, round(avg(deeperUnderstanding), 2) as\
     deeper_understanding, round(avg(homeworkQuality), 2) as\
@@ -307,4 +338,14 @@ def get_avg_course_eval_by_department(dict_cursor, departmentID, campus):
 
     dict_cursor.execute(sql, ("{}%".format(departmentID), campus))
     return dict_cursor.fetchone()
+
+def get_courses_without_prerequisites_by_br(dict_cursor, br, campus):
+    sql = "(SELECT cID, cName, term, prerequisites, exclusion, lecNum from\
+    Course where campus = %s and br like %s)\
+    EXCEPT\
+    (SELECT cID, cName, term, prerequisites, exclusion, lecNum from Course where\
+    campus = %s and prerequisites REGEXP '[A-Z]{3}([A-Z]|\d)\d{2}' and br like %s"
+
+    dict_cursor.execute(sql, (campus, "%{}%".format(br), campus, "%{}%".format(br)))
+    return list(dict_cursor.fetchall())
 
