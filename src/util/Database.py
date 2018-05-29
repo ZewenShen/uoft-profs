@@ -349,3 +349,12 @@ def get_courses_without_prerequisites_by_br(dict_cursor, br, campus):
     dict_cursor.execute(sql, (campus, "%{}%".format(br), campus, "%{}%".format(br)))
     return list(dict_cursor.fetchall())
 
+def get_course_list_by_instructor(dict_cursor, instructorFullName, campus):
+    sql = "SELECT cID, cName, lecNum, term, instructorFullName,\
+    intellectuallySimulating, deeperUnderstanding, courseAtmosphere,\
+    homeworkQuality, homeworkFairness, overallQuality, enthusiasm, workload,\
+    recommend, numInvited, numResponded from Eval where instructorFullName = %s\
+    and campus = %s"
+
+    dict_cursor.execute(sql, (instructorFullName, campus))
+    return list(dict_cursor.fetchall())
