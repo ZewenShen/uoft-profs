@@ -1,6 +1,5 @@
 h1 {
 	text-align: right;
-	border: 
 }
 
 body {
@@ -12,4 +11,21 @@ body {
 	margin: 0 auto;
 	width: 90%;
 	padding-left: 8%;
+}
+
+#evaltable {
+	margin-top: 10px;
+}
+
+#result {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.table-responsive {
+	word-wrap: break-word;
+}
+
+.ttip {
+	data-toggle: tooltip;
+	data-placement: top;
 }

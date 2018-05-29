@@ -354,7 +354,7 @@ def get_course_list_by_instructor(dict_cursor, instructorFullName, campus):
     intellectuallySimulating, deeperUnderstanding, courseAtmosphere,\
     homeworkQuality, homeworkFairness, overallQuality, enthusiasm, workload,\
     recommend, numInvited, numResponded from Eval where instructorFullName = %s\
-    and campus = %s"
+    and campus = %s ORDER BY term DESC, cID"
 
     dict_cursor.execute(sql, (instructorFullName, campus))
     return list(dict_cursor.fetchall())
