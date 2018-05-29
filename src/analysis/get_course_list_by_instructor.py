@@ -2,7 +2,7 @@ import sys
 sys.path.append('../util/')
 import Database
 import argparse
-
+import json
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -16,5 +16,7 @@ if __name__ == '__main__':
     connection = Database.get_connection_with_dict_cursor('../../database.info', 'uoftcourses')
     dict_cursor = connection.cursor()
 
-    print(Database.get_course_list_by_instructor(dict_cursor, instructorFullName, campus))
+    course_list = Database.get_course_list_by_instructor(dict_cursor, instructorFullName, campus)
+    json_course_list = json.dumps(course_list)
+    print(json_course_list)
     sys.stdout.flush()
