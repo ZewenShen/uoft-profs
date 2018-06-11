@@ -358,3 +358,16 @@ def get_course_list_by_instructor(dict_cursor, instructorFullName, campus):
 
     dict_cursor.execute(sql, (instructorFullName, campus))
     return list(dict_cursor.fetchall())
+
+def get_prof_list(cursor):
+    sql = "SELECT DISTINCT instructorFullName from Eval where campus != 'Scarborough'"
+
+    cursor.execute(sql)
+    return list(cursor.fetchall())
+
+def get_course_list(cursor):
+    sql = "SELECT DISTINCT cID from Eval where campus != 'Scarborough'"
+
+    cursor.execute(sql)
+    return list(cursor.fetchall())
+    
