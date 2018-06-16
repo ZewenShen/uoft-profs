@@ -13,11 +13,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'))
 app.set("view engine", "ejs");
 
-app.get("/", function(req, res) {
-	res.send("homepage");
-});
-
-app.get("/profanalysis", function(req, res) {
+app.get("/|/profanalysis", function(req, res) {
 	instructor = req.query.instructor;
 	course = req.query.course;
 	campus = req.query.campus;
@@ -33,17 +29,6 @@ app.get("/profanalysis", function(req, res) {
 		courseListPY.stdout.on('end', function() {
 			courseList = JSON.parse(courseDataString);
 		});
-		/*
-		var courseListTerminal = util.format("python3 %s '%s' '%s'", COURSE_LIST_PATH, instructor, campus);
-		exec(courseListTerminal, function(err, stdout, stderr) {
-			if (err) {
-				console.log('get course list err:' + stderr);
-			} else {
-				courseList = JSON.parse(stdout);
-			}
-		});
-		*/
-
 		var plotTerminal = util.format("python3 %s '%s' %s '%s'", ANALYZE_PROF_PATH, instructor, course, campus);
 		exec(plotTerminal, function(err, stdout, stderr) {
 			if (err) {
@@ -56,10 +41,14 @@ app.get("/profanalysis", function(req, res) {
 	}
 });
 
+app.get("*", function(req, res) {
+	res.redirect("/");
+});
+
 app.post("/analyzeprof", function(req, res) {
 	var profInput = {instructor: req.body.instructor, course: req.body.course, campus: req.body.campus};
 	var query = querystring.stringify(profInput);
-	res.redirect("/profanalysis?" + query);
+	res.redirect("/?" + query);
 });
 
 
