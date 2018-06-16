@@ -1,4 +1,4 @@
-# uoft-courses
+# uoft-profs
 
 This library intends to offer course selection advice to students at UofT, e.g., whether the prof is good, whether the course is difficult, etc. Moreover, it automates the generation of one's timetable based on one's course selection.
 
@@ -115,6 +115,6 @@ Powered by Express.js and Bootstrap.
 
 #### Demo:
 
-[webpage](http://uoftcourses.zshen.org)
+[webpage](http://uoftprofs.com)
 
 ![webAnalysis](https://github.com/Walden-Shen/uoft-courses/blob/master/examples/images/web_analysis_example.png?raw=true)
