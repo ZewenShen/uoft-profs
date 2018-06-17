@@ -17,7 +17,7 @@ app.get("/|/profanalysis", function(req, res) {
 	instructor = req.query.instructor;
 	course = req.query.course;
 	campus = req.query.campus;
-	if (instructor == undefined || course == undefined || !/^[A-Za-z\s]*$/.test(instructor) || !/^[A-Z]{3}\d?\d?\d?$/.test(course) || (campus != 'St. George' && campus != 'Mississauga')) {
+	if (instructor == undefined || course == undefined || !/^[A-Za-z\s\.\-]*$/.test(instructor) || !/^[A-Z]{3}\d?\d?\d?$/.test(course) || (campus != 'St. George' && campus != 'Mississauga')) {
 		res.render("profanalysis", {imgTag: ''});
 	} else {
 		courseDataString = '';

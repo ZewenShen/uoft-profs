@@ -27,7 +27,7 @@
 		    <div class="col-sm-4 my-1 ui-widget">
 		      <label class="sr-only" for="inlineFormInputName">Name</label>
 		      <input type="text" class="form-control" id="inlineFormInputName"
-			  name="instructor" pattern="[A-Za-z\s]*" title= "Full name of the instructor (case sensitive)" placeholder="Instructor full name (e.g., David Liu)" required>
+			  name="instructor" pattern="[A-Za-z\s\.\-]*" title= "Full name of the instructor (case sensitive)" placeholder="Instructor full name (e.g., David Liu)" required>
 		    </div>
 		    <div class="col-sm-4 my-1">
 		      <label class="sr-only" for="inlineFormInputGroupUsername">CourseID</label>
@@ -51,8 +51,7 @@
 	</div>
 	<div class="container" id="result">
 		<% if (imgTag != '') { %>
-			<p>If you like this service, why don't you mark <a>
-				href="http://uoftprofs.com">http://uoftprofs.com</a> for future
+			<p>If you like this service, why don't you mark <a href="http://uoftprofs.com">http://uoftprofs.com</a> for future
 				use? That web domain wouldn't be changed in the next five years.</p>
 			<img width="100%" src="data:image/png;base64,<%= imgTag %>">
 		<div class="table-responsive">
