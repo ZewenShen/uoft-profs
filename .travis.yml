@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+  - "node"
+install:
+  - cd src/web && npm install
+script:
+  - node src/web/app.js
