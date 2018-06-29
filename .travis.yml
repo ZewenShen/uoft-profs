@@ -4,4 +4,4 @@ node_js:
 install:
   - cd src/web && npm install
 script:
-  - node app.js
+  - node app.js -t

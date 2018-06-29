@@ -3,8 +3,13 @@ var app = express();
 var bodyParser = require("body-parser");
 var querystring = require("querystring");
 var exec = require("child_process").exec;
-var spawn = require("child_process").spawn;
 var util = require("util");
+var program = require("commander");
+
+program
+	.version('0.0.1')
+	.option('-t, --test', 'Test mode for Travis')
+	.parse(process.argv);
 
 var ANALYZE_PROF_PATH = '../analysis/analyze_prof.py'
 
@@ -41,7 +46,10 @@ app.post("/analyzeprof", function(req, res) {
 	res.redirect("/?" + query);
 });
 
-
-app.listen(3000, "127.0.0.1", function() {
-	console.log("Server starts...");
-});
+if (program.test) {
+	return 0;
+} else {
+	app.listen(3000, "127.0.0.1", function() {
+		console.log("Server starts...");
+	});
+}

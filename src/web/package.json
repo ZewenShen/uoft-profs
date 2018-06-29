@@ -9,6 +9,7 @@
   "author": "Zewen",
   "license": "ISC",
   "dependencies": {
+    "commander": "^2.16.0",
     "ejs": "^2.6.1",
     "express": "^4.16.3"
   }
