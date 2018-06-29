@@ -7,7 +7,6 @@ var spawn = require("child_process").spawn;
 var util = require("util");
 
 var ANALYZE_PROF_PATH = '../analysis/analyze_prof.py'
-var COURSE_LIST_PATH = '../analysis/get_course_list_by_instructor.py'
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'))
@@ -20,22 +19,13 @@ app.get("/|/profanalysis", function(req, res) {
 	if (instructor == undefined || course == undefined || !/^[A-Za-z\s\.\-]*$/.test(instructor) || !/^[A-Z]{3}\d?\d?\d?$/.test(course) || (campus != 'St. George' && campus != 'Mississauga')) {
 		res.render("profanalysis", {imgTag: ''});
 	} else {
-		courseDataString = '';
-		courseListPY = spawn('python3', [COURSE_LIST_PATH, instructor, campus]);
-		courseListPY.stdout.on('data', function(data) {
-			courseDataString += data.toString();
-		});
-		var courseList = [];
-		courseListPY.stdout.on('end', function() {
-			courseList = JSON.parse(courseDataString);
-		});
 		var plotTerminal = util.format("python3 %s '%s' %s '%s'", ANALYZE_PROF_PATH, instructor, course, campus);
 		exec(plotTerminal, function(err, stdout, stderr) {
 			if (err) {
 				console.log('get plot err:' + stderr);
-				res.render("profanalysis", {imgTag: '', courseList: courseList});
+				res.render("profanalysis", {imgTag: ''});
 			} else {
-				res.render("profanalysis", {imgTag: stdout, courseList: courseList});
+				res.render("profanalysis", {imgTag: stdout});
 			}
 		});
 	}

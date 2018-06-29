@@ -54,55 +54,6 @@
 			<p>If you like this service, why don't you mark <a href="http://uoftprofs.com">http://uoftprofs.com</a> for future
 				use? That web domain wouldn't be changed in the next five years.</p>
 			<img width="100%" src="data:image/png;base64,<%= imgTag %>">
-		<div class="table-responsive">
-			<table class="table" id="evaltable">
-				<caption>Courses held by the instructor in past five years</caption>
-				<thead class="thead-light">
-					<tr>
-						<th scope="col">#</th>
-						<th scope="col">cID</th>
-						<th scope="col">cName</th>
-						<th scope="col">Lec#</th>
-						<th scope="col">Term</th>
-						<th scope="col">Instructor</th>
-						<th scope="col" class="ttip" title="Intellectually Stimulating">Item 1</th>
-						<th scope="col" class="ttip" title="Deeper Understanding">Item 2</th>
-						<th scope="col" class="ttip" title="Course Atmosphere">Item 3</th>
-						<th scope="col" class="ttip" title="Homework Fairness">Item 4</th>
-						<th scope="col" class="ttip" title="Homework Quality">Item 5</th>
-						<th scope="col" class="ttip" title="Overall Quality">Item 6</th>
-						<th scope="col">Enthusiasm</th>
-						<th scope="col">Recommend</th>
-						<th scope="col">Workload</th>
-						<th scope="col">Num Invited</th>
-						<th scope="col">Num Responded</th>
-					</tr>
-				</thead>
-				<tbody>
-					<% for(var i = 0; i < courseList.length; i++) { %>
-					<tr>
-					      	<th scope="row"><%= i+1 %></th>
-						<td><%= courseList[i].cID %></td>
-						<td><%= courseList[i].cName %></td>
-						<td><%= courseList[i].lecNum %></td>
-						<td><%= courseList[i].term %></td>
-						<td><%= courseList[i].instructorFullName %></td>
-						<td><%= courseList[i].intellectuallySimulating %></td>
-						<td><%= courseList[i].deeperUnderstanding %></td>
-						<td><%= courseList[i].courseAtmosphere %></td>
-						<td><%= courseList[i].homeworkQuality %></td>
-						<td><%= courseList[i].homeworkFairness %></td>
-						<td><%= courseList[i].overallQuality %></td>
-						<td><%= courseList[i].enthusiasm %></td>
-						<td><%= courseList[i].recommend %></td>
-						<td><%= courseList[i].workload %></td>
-						<td><%= courseList[i].numInvited %></td>
-						<td><%= courseList[i].numResponded %></td>
-					</tr>
-					<% } %>
-		  		</tbody>
-			</table>
-		</div>
 		<% } %>
 	</div>
 
