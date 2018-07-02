@@ -3,6 +3,10 @@ import unittest
 sys.path.append("../src/util")
 import Database
 
+"""
+Since the database has already been updated, these tests are deprecated.
+"""
+
 class Test(unittest.TestCase):
     """
     The Database we are using only contain evaluation data until 2017fall, so
