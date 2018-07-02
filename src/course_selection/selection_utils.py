@@ -10,10 +10,19 @@ import itertools
 
 PATH = "../../database.info"
 DB_NAME = "uoftcourses"
+DAY = ("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY")
+LEC_NUM_INDEX = 1
+TIME_INDEX = 2
+
+def get_and_filter_course_data(cursor, cID, term):
+    data_processed = get_processed_course_data(cursor, cID, term)
+    comb = get_combination_of_one_course(data_processed)
+    _filter_combination(comb)
+    return comb
 
 def __get_course_data(cursor, cID, term):
     """
-    >>> get_course_data(cursor, "CSC148H1", "Fall")
+    >>> __get_course_data(cursor, "CSC148H1", "Fall")
     [['CSC148H1', 'Lec 0101', 'TUESDAY 10:00-12:00 FRIDAY 10:00-11:00'],
      ['CSC148H1', 'Lec 0102', 'TUESDAY 10:00-12:00 FRIDAY 10:00-11:00'],
      ['CSC148H1', 'Tut 0101', 'THURSDAY 09:00-11:00'], 
@@ -32,15 +41,15 @@ def _process_raw_course_data(raw_course_data_list):
     for item in raw_course_data_list:
         item[2] = process_times(item[2])
 
-def get_course_data(cursor, cID, term):
+def get_processed_course_data(cursor, cID, term):
     result = __get_course_data(cursor, cID, term)
     _process_raw_course_data(result)
     return result
 
 def get_combination_of_one_course(course_info):
-    lec_list = [item for item in course_info if 'Lec' in item[1]]
-    tut_list = [item for item in course_info if 'Tut' in item[1]]
-    pra_list = [item for item in course_info if 'Pra' in item[1]]
+    lec_list = [item for item in course_info if 'Lec' in item[LEC_NUM_INDEX]]
+    tut_list = [item for item in course_info if 'Tut' in item[LEC_NUM_INDEX]]
+    pra_list = [item for item in course_info if 'Pra' in item[LEC_NUM_INDEX]]
     
     if lec_list != []:
         comb = lec_list
@@ -56,12 +65,34 @@ def get_combination_of_one_course(course_info):
             comb = list(itertools.product(comb, pra_list))
     else:
         comb = pra_list
-
-    for item in comb:
-        if is_conflict(item):
-            comb.remove(item)
         
     return comb
+
+def _filter_combination(comb):
+    for separated_schedule in comb:
+        if _is_not_valid(separated_schedule):
+            comb.remove(separated_schedule)
+
+def _is_not_valid(separated_schedule):
+    """
+    Return false if the combination we get conflicts.
+    """
+    schedule = {"MONDAY": [False for i in range(48)],
+                "TUESDAY": [False for i in range(48)],
+                "WEDNESDAY": [False for i in range(48)],
+                "THURSDAY": [False for i in range(48)],
+                "FRIDAY": [False for i in range(48)]
+                }
+    for item in separated_schedule:
+        item_day = item[TIME_INDEX]
+        for day in DAY: # 5 times
+            for time_tuple in item_day[day]: # 0~2 times basically
+                for i in range(time_tuple[0], time_tuple[1]):
+                    if schedule[day][i] is True:
+                        return True
+                    else:
+                        schedule[day][i] = True
+    return False
 
 
 def time_to_num(time):
@@ -123,29 +154,3 @@ def process_times(times):
 
     return all_times
 
-
-def no_time_conflict(times, times_to_check):
-    """
-    times: a string parameter to process_times()
-    times_to_check: a string parameter to process_times()
-    Returns True if times_to_check and times has no time conflict; False otherwise
-
-    e.g. no_time_conflict("MONDAY 18:00-20:00 THURSDAY 18:00-21:00", "MONDAY 17:00-19:00") -> False
-         no_time_conflict("MONDAY 18:00-20:00 THURSDAY 18:00-21:00", "MONDAY 17:00-18:00") -> True
-         no_time_conflict("MONDAY 18:00-20:00", "TUESDAY 18:00-20:00") -> True
-         no_time_conflict("MONDAY 12:00-14:00 MONDAY 12:00-13:00", "TUESDAY 9:00-10:00") -> True
-
-    IMPORTANT: this function assumes that the input parameters are in a format given in process_times()
-    In addition, this function assumes that each set of times does not have a conflict with itself
-    """
-    times_ = process_times(times)
-    times_to_check_ = process_times(times_to_check)
-
-    for time in times_:
-        weekday = time[0]
-        for time_to_check in times_to_check_:
-            if time_to_check[0] == weekday:
-                if ((time_to_check[1] >= time[1] and time_to_check[1] < (time[1] + time[2]))
-                        or (time[1] >= time_to_check[1] and time[1] < (time_to_check[1] + time_to_check[2]))):
-                            return False
-    return True

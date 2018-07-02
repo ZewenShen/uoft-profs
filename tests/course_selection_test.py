@@ -44,6 +44,10 @@ class TestClass(unittest.TestCase):
                                     30)]}], ['CSC148H1', 'Tut 5101', {'TUESDAY':
                                         [], 'WEDNESDAY': [], 'FRIDAY': [],
                                         'MONDAY': [], 'THURSDAY': [(38, 42)]}]]
+    def test__is_not_valid(self):
+    	item = (['CSC148H1', 'Lec 0101', {'WEDNESDAY': [], 'TUESDAY': [(20, 24)], 'FRIDAY': [(20, 22)], 'MONDAY': [], 'THURSDAY': [(26, 30)]}], ['CSC148H1', 'Tut 0301', {'WEDNESDAY': [], 'TUESDAY': [], 'FRIDAY': [], 'MONDAY': [], 'THURSDAY': [(26, 30)]}])
+    	assert selection_utils._is_not_valid(item) is True
+    	
 
 
 if __name__ == '__main__':
