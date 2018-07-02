@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../src/selection-recommendation")
+sys.path.append("../src/deprecated_course_selection")
 sys.path.append("../src/util")
 import time_conflicts_check
 import recommend
