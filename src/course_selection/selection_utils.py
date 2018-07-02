@@ -6,21 +6,23 @@ This file is mainly written by James Jiang. I only modified it a little bit.
 import sys
 sys.path.append("../util")
 import Database
+import itertools
 
 PATH = "../../database.info"
 DB_NAME = "uoftcourses"
 
-def __get_course_data(cursor, cID, campus, term):
+def __get_course_data(cursor, cID, term):
     """
-    >>> get_course_data(cursor, "CSC148", "St. George", "Fall")
-    [['csc148h1', 'lec 0101', 'tuesday 10:00-12:00 friday 10:00-11:00'],
-    ['csc148h1', 'lec 0102', 'tuesday 10:00-12:00 friday 10:00-11:00'],
-    ['csc148h1', 'tut 0101', 'thursday 09:00-11:00'], ['csc148h1', 'tut 0201',
-    'thursday 11:00-13:00'], ['csc148h1', 'tut 0301', 'thursday 13:00-15:00'],
-    ['csc148h1', 'tut 5101', 'thursday 19:00-21:00']]
+    >>> get_course_data(cursor, "CSC148H1", "Fall")
+    [['CSC148H1', 'Lec 0101', 'TUESDAY 10:00-12:00 FRIDAY 10:00-11:00'],
+     ['CSC148H1', 'Lec 0102', 'TUESDAY 10:00-12:00 FRIDAY 10:00-11:00'],
+     ['CSC148H1', 'Tut 0101', 'THURSDAY 09:00-11:00'], 
+     ['CSC148H1', 'Tut 0201', 'THURSDAY 11:00-13:00'], 
+     ['CSC148H1', 'Tut 0301', 'THURSDAY 13:00-15:00'], 
+     ['CSC148H1', 'Tut 5101', 'THURSDAY 19:00-21:00']]
     """
-    sql = "SELECT cID, lecNum, lecTime from Course where cID like %s and campus = %s and term like %s"
-    cursor.execute(sql, ("{}%".format(cID), campus, "%{}%".format(term)))
+    sql = "SELECT cID, lecNum, lecTime from Course where cID like %s and term like %s"
+    cursor.execute(sql, (cID, "%{}%".format(term)))
     return list(map(list, list(cursor.fetchall())))
 
 def _process_raw_course_data(raw_course_data_list):
@@ -30,10 +32,37 @@ def _process_raw_course_data(raw_course_data_list):
     for item in raw_course_data_list:
         item[2] = process_times(item[2])
 
-def get_course_data(cursor, cID, campus, term):
-    result = __get_course_data(cursor, cID, campus, term)
+def get_course_data(cursor, cID, term):
+    result = __get_course_data(cursor, cID, term)
     _process_raw_course_data(result)
     return result
+
+def get_combination_of_one_course(course_info):
+    lec_list = [item for item in course_info if 'Lec' in item[1]]
+    tut_list = [item for item in course_info if 'Tut' in item[1]]
+    pra_list = [item for item in course_info if 'Pra' in item[1]]
+    
+    if lec_list != []:
+        comb = lec_list
+        if list(itertools.product(comb, tut_list)) != []:
+            comb = list(itertools.product(comb, tut_list))
+            if list(itertools.product(comb, pra_list)) != []:
+                comb = list(itertools.product(comb, pra_list))
+        elif list(itertools.product(comb, pra_list)) != []:
+            comb = list(itertools.product(comb, pra_list))
+    elif tut_list != []:
+        comb = tut_list
+        if list(itertools.product(comb, pra_list)) != []:
+            comb = list(itertools.product(comb, pra_list))
+    else:
+        comb = pra_list
+
+    for item in comb:
+        if is_conflict(item):
+            comb.remove(item)
+        
+    return comb
+
 
 def time_to_num(time):
     """
