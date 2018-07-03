@@ -120,17 +120,18 @@ def main():
         Buffer = 0 
         count = 0
         for course_dict in parse_json(get_all_courses_json()):
-            try:
-                Database.insert_course_data(cursor, course_dict)
-            except:
-                print("error when inserting {}".format(course_dict))
-                continue
-            count += 1
-            Buffer += 1
-            if Buffer == COMMIT_BUFFER:
-                print("{}th time insert course data successfully".format(count))
-                Database.commit_data(connection)
-                Buffer = 0
+            if "Summer" not in course_dict['term']:
+                try:
+                    Database.insert_course_data(cursor, course_dict)
+                except:
+                    print("error when inserting {}".format(course_dict))
+                    continue
+                count += 1
+                Buffer += 1
+                if Buffer == COMMIT_BUFFER:
+                    print("{}th time insert course data successfully".format(count))
+                    Database.commit_data(connection)
+                    Buffer = 0
 
     Database.commit_data(connection)
     connection.close()
