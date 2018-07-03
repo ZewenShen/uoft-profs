@@ -31,6 +31,8 @@ def __get_course_data(cursor, cID, term):
      ['CSC148H1', 'Tut 5101', 'THURSDAY 19:00-21:00']]
     """
     sql = "SELECT cID, lecNum, lecTime from Course where cID like %s and term like %s"
+    if cID[-2] == 'Y':
+        term = 'Fall'
     cursor.execute(sql, (cID, "%{}%".format(term)))
     return list(map(list, list(cursor.fetchall())))
 
