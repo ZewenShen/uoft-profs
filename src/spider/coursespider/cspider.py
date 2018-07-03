@@ -22,7 +22,7 @@ headers = {
 all_courses_params = {
     'queryText': '',
     'requirements': '',
-    'campusParam': 'St. George,Scarborough,Mississuaga'
+    'campusParam': 'St. George,Scarborough,Mississauga'
 }
 
 COMMIT_BUFFER = 15
@@ -91,7 +91,7 @@ def parse_course_detail(html):
     prerequisites = soup.find('span', attrs = {'id': "u50"})
     exclusion = soup.find('span', attrs = {'id': 'u68'})
     br = soup.find('span', attrs = {'id': 'u122'})
-    table = soup.find_all('span', attrs = {'id': re.compile("^u2(45|54|63|72|81|90)_line\d$")})
+    table = soup.find_all('span', attrs = {'id': re.compile("^u2(45|54|63|72|81|90)_line\d.?$")})
     clean_pattern = re.compile(' \n|\n|\r')
     
     num_of_courses = len(table) // 6
