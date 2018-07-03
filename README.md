@@ -4,10 +4,10 @@
 This library intends to offer course selection advice to students at UofT, e.g., whether the prof is good, whether the course is difficult, etc. Moreover, it automates the generation of one's timetable based on one's course selection.
 
 ## Functions to implement ...
-  - [x] Scrape all the course evaluation data from Blackboard
-  - [ ] Given all the courses one want to take in a semester, return a best time table based on time conflicts, course evaluation, etc.
+  - [x] Scrape all the course evaluation data
+  - [x] Given all the courses one want to take in a semester, automatically generate a timetable without conflict
   - [ ] Recommend courses in one's free time slots
-  - [x] Analyze course evaluation data from BlackBoard
+  - [x] Analyze course evaluation data
   - [x] Publish this service to the Internet
 
 ## Table of Contents

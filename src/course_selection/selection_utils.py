@@ -59,18 +59,22 @@ def get_combination_of_one_course(course_info):
                 comb = list(itertools.product(comb, pra_list))
         elif list(itertools.product(comb, pra_list)) != []:
             comb = list(itertools.product(comb, pra_list))
+        else:
+            comb = [[item] for item in lec_list]
     elif tut_list != []:
         comb = tut_list
         if list(itertools.product(comb, pra_list)) != []:
             comb = list(itertools.product(comb, pra_list))
+        else:
+            comb = [[item] for item in tut_list]
     else:
-        comb = pra_list
+        comb = [[item] for item in pra_list]
         
     return comb
 
 def _filter_combination(comb):
     for separated_schedule in comb:
-        if _is_not_valid(separated_schedule):
+        if len(separated_schedule) != 1 and _is_not_valid(separated_schedule):
             comb.remove(separated_schedule)
 
 def _is_not_valid(separated_schedule):
