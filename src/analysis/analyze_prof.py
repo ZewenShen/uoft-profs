@@ -127,7 +127,7 @@ def analyze_course_quality_by_department(dict_cursor, departmentID, campus):
     course_quality_by_departmentID = Database.get_avg_course_eval_by_cID(dict_cursor, departmentID, campus)
 
     course_quality_by_departmentID_df = pd.DataFrame(list(course_quality_by_departmentID.values()), columns =\
-            ["avg course quality of {} department".format(cID)], index=list(course_quality_by_departmentID.keys()))
+            ["avg course quality of {} courses".format(cID[:3])], index=list(course_quality_by_departmentID.keys()))
 
     return course_quality_by_departmentID_df
 
