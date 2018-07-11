@@ -6,9 +6,10 @@ import requests
 import re
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
+import sdatabase
 
-DB_NAME = 'uoftcourses'
-DB_PATH = '../../database.info'
+DB_NAME = 'uoftspots'
+DB_PATH = '../../../database.info'
 
 BASE_URL = 'https://timetable.iit.artsci.utoronto.ca/api/20189/courses?section={}'
 
@@ -19,6 +20,8 @@ headers = {
 }
 
 COMMIT_BUFFER = 15
+
+SEMESTERS = ['F', 'S', 'Y']
 
 
 def get_json_of_course_list(semester):
@@ -45,6 +48,33 @@ def process_json(json):
                 print("Error when processing the json of {}".format(course_name))
             yield result
 
+def init_db(path, DB_NAME):
+    sdatabase.init_db(path, DB_NAME)
+    connection = sdatabase.get_connection(DB_PATH, DB_NAME)
 
+    commit_count = 0
 
+    with connection.cursor() as cursor:
+        for semester in SEMESTERS:
+            for item in process_json(get_json_of_course_list(semester)):
+                cID = item['cID']
+                lecNum = item['session']
+                print(cID, lecNum)
+                capacity = item['enrollmentCapacity']
+                sdatabase.init_spot(cursor, cID, lecNum, capacity)
+                sdatabase.init_wl(cursor, cID, lecNum)
 
+                commit_count += 1
+                if commit_count >= COMMIT_BUFFER:
+                    commit_count = 0
+                    sdatabase.commit_data(connection)
+    sdatabase.commit_data(connection)
+    connection.close()
+
+                
+    
+
+def add_new_column(column_name):
+    connection = sdatabase.get_connection(DB_PATH, DB_NAME)
+    with connection.cursor() as cursor:
+        sdatabase.add_new_column(cursor, column_name)

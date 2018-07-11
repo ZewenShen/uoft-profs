@@ -46,7 +46,7 @@ def init_db(path, DB_NAME): # Should be called when this project is executed fir
     INT(10), PRIMARY KEY (cID, term, lecNum, instructorFullName)) CHARACTER SET=utf8"
     cursor.execute(create_eval_table_sql)
 
-    print("database intialized")
+    print("database initialized")
 
     connection.close()
 
