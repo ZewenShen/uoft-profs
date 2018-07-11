@@ -52,6 +52,14 @@ def add_new_column(cursor, column_name):
     sql2 = "ALTER TABLE Waitlist ADD COLUMN {} INT(10) NOT NULL".format(column_name)
     cursor.execute(sql2)
 
+def update_spot_new_column(cursor, column_name, cID, lecNum, enrolment):
+    sql = "UPDATE Spot SET {} = %s WHERE cID = %s and lecNum = %s".format(column_name)
+    cursor.execute(sql, (enrolment, cID, lecNum))
+
+def update_wl_new_column(cursor, column_name, cID, lecNum, waitlist):
+    sql = "UPDATE Spot SET {} = %s WHERE cID = %s and lecNum = %s".format(column_name)
+    cursor.execute(sql, (waitlist, cID, lecNum))
+
 def init_spot(cursor, cID, lecNum, capacity):
     sql = "INSERT INTO Spot(cID, lecNum, capacity) values (%s, %s, %s)"
     cursor.execute(sql, (cID, lecNum, capacity))

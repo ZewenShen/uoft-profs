@@ -70,9 +70,29 @@ def init_db(path, DB_NAME):
                     sdatabase.commit_data(connection)
     sdatabase.commit_data(connection)
     connection.close()
-
-                
     
+def update_new_column(column_name):
+    add_new_column(column_name)
+
+    connection = sdatabase.get_connection(DB_PATH, DB_NAME)
+    with connection.cursor() as cursor:
+        for semester in SEMESTERS:
+            for item in process_json(get_json_of_course_list(semester)):
+                cID = item['cID']
+                lecNum = item['session']
+                print(cID, lecNum)
+                enrolment = item['actualEnrolment']
+                waitlist = item['actualWaitlist']
+
+                sdatabase.update_spot_new_column(cursor, column_name, cID, lecNum, enrolment)
+                sdatabase.update_wl_new_column(cursor, column_name, cID, lecNum, waitlist)
+
+                commit_count += 1
+                if commit_count >= COMMIT_BUFFER:
+                    commit_count = 0
+                    sdatabase.commit_data(connection)
+    sdatabase.commit_data(connection)
+    connection.close()
 
 def add_new_column(column_name):
     connection = sdatabase.get_connection(DB_PATH, DB_NAME)
