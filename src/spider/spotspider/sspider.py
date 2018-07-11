@@ -75,6 +75,8 @@ def update_new_column(column_name):
     add_new_column(column_name)
 
     connection = sdatabase.get_connection(DB_PATH, DB_NAME)
+
+    commit_count = 0
     with connection.cursor() as cursor:
         for semester in SEMESTERS:
             for item in process_json(get_json_of_course_list(semester)):
