@@ -99,13 +99,13 @@ def parse_course_detail(html):
 
     try:
         result = {
-                "lecNum": [re.sub(clean_pattern, '', table[6 * i].getText()) for i in range(num_of_courses)],
+                "lecNum": ['-'.join(re.sub(clean_pattern, '', table[6 * i].getText()).upper().split()) for i in range(num_of_courses)],
                 "size": [int(re.sub(clean_pattern, '', table[4 + 6 * i].getText())) for i in range(num_of_courses)],
                 "currentEnrollment": [int(re.sub(clean_pattern, '', table[5 + 6 * i].getText())) for i in range(num_of_courses)]
                 }
     except:
         result = {
-                "lecNum": [re.sub(clean_pattern, '', table[6 * i].getText()) for i in range(num_of_courses)],
+                "lecNum": ['-'.join(re.sub(clean_pattern, '', table[6 * i].getText()).upper().split()) for i in range(num_of_courses)],
                 "size": [int(re.sub(clean_pattern, '', table[4 + 6 * i].getText())) for i in range(num_of_courses)],
                 "currentEnrollment": [0 for i in range(num_of_courses)]
                 }
@@ -130,9 +130,10 @@ def update_new_column(column_name):
                 cID = course_dict['cID']
                 lecNum = course_dict['lecNum']
                 enrolment = course_dict['currentEnrollment']
+                term = __transform_term(course_dict['term'])
                 try:
                     for i in range(len(course_dict['lecNum'])):
-                        sdatabase.update_spot_new_column(cursor, column_name, cID, lecNum[i], enrolment[i])
+                        sdatabase.new_update_spot_new_column(cursor, column_name, cID, lecNum[i], enrolment[i], term)
                 except:
                     print("error when inserting {}".format(course_dict))
                     continue
@@ -145,6 +146,14 @@ def update_new_column(column_name):
 
     sdatabase.commit_data(connection)
     connection.close()
+
+def __transform_term(term):
+    if '+' in term:
+        return 'Y'
+    elif 'Fall' in term:
+        return 'F'
+    else:
+        return 'W'
 
 if __name__ == '__main__':
     DB_PATH = '../../../database.info'

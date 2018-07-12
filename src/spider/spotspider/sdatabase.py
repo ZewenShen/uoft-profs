@@ -56,6 +56,10 @@ def update_spot_new_column(cursor, column_name, cID, lecNum, enrolment):
     sql = "UPDATE Spot SET {} = %s WHERE cID = %s and lecNum = %s".format(column_name)
     cursor.execute(sql, (enrolment, cID, lecNum))
 
+def new_update_spot_new_column(cursor, column_name, cID, lecNum, enrolment, term):
+    sql = "UPDATE Spot SET {} = %s WHERE cID like %s and lecNum = %s".format(column_name)
+    cursor.execute(sql, (enrolment, "{}-{}%".format(cID, term), lecNum))
+
 def update_wl_new_column(cursor, column_name, cID, lecNum, waitlist):
     sql = "UPDATE Spot SET {} = %s WHERE cID = %s and lecNum = %s".format(column_name)
     cursor.execute(sql, (waitlist, cID, lecNum))
