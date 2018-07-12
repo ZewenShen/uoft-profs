@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 import sdatabase
 
-DB_NAME = 'uoftcourses'
+DB_NAME = 'uoftspots'
 DB_PATH = '../../database.info'
 
 BASE_URL = 'http://coursefinder.utoronto.ca/course-search/search/courseSearch/course/search?'
@@ -92,23 +92,24 @@ def parse_course_detail(html):
     in a dictionary.
     """
     soup = BeautifulSoup(html, 'lxml')
-    prerequisites = soup.find('span', attrs = {'id': "u50"})
-    exclusion = soup.find('span', attrs = {'id': 'u68'})
-    br = soup.find('span', attrs = {'id': 'u122'})
     table = soup.find_all('span', attrs = {'id': re.compile("^u2(45|54|63|72|81|90)_line\d.?$")})
     clean_pattern = re.compile(' \n|\n|\r')
     
     num_of_courses = len(table) // 6
 
-    return {
-            "lecNum": [re.sub(clean_pattern, '', table[6 * i].getText()) for i in range(num_of_courses)],
-            "size": [int(re.sub(clean_pattern, '', table[4 + 6 * i].getText())) for i in range(num_of_courses)],
-            "currentEnrollment": [int(re.sub(clean_pattern, '', table[5 + 6 * i].getText())) for i in range(len(table) // 6)]
-            #
-            # the code above should be uncommented when currentEnrollment
-            # appears in the website. Now all the currentEnrollment is None, so I
-            # cannot apply int to it.
-            }
+    try:
+        result = {
+                "lecNum": [re.sub(clean_pattern, '', table[6 * i].getText()) for i in range(num_of_courses)],
+                "size": [int(re.sub(clean_pattern, '', table[4 + 6 * i].getText())) for i in range(num_of_courses)],
+                "currentEnrollment": [int(re.sub(clean_pattern, '', table[5 + 6 * i].getText())) for i in range(num_of_courses)]
+                }
+    except:
+        result = {
+                "lecNum": [re.sub(clean_pattern, '', table[6 * i].getText()) for i in range(num_of_courses)],
+                "size": [int(re.sub(clean_pattern, '', table[4 + 6 * i].getText())) for i in range(num_of_courses)],
+                "currentEnrollment": [0 for i in range(num_of_courses)]
+                }
+    return result
 
 def add_new_column(column_name):
     connection = sdatabase.get_connection(DB_PATH, DB_NAME)
