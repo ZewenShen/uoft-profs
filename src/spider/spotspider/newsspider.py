@@ -153,7 +153,7 @@ def __transform_term(term):
     elif 'Fall' in term:
         return 'F'
     else:
-        return 'W'
+        return 'S'
 
 if __name__ == '__main__':
     DB_PATH = '../../../database.info'
