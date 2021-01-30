@@ -1,13 +1,9 @@
 # uoft-profs
 
-This library offers course selection advice to students at UofT, e.g., whether the prof is good, whether the course is difficult, etc. Moreover, it automates the generation of one's timetable based on one's course selection.
+This library offers course selection advice to students at UofT, e.g., whether the prof is good, whether the course is difficult, etc. Moreover, it automates the generation of one's timetable based on one's course selection. 
 
-## Functions to implement ...
-  - [x] Scrape all the course evaluation data
-  - [x] Given all the courses one want to take in a semester, automatically generate a timetable without conflict
-  - [ ] Recommend courses in one's free time slots
-  - [x] Analyze course evaluation data
-  - [x] Publish this service to the Internet
+23 Jan 2021: The website that used to host the service is now shut down.
+
 
 ## Table of Contents
 - [Requirements](#requirements)
