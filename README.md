@@ -1,7 +1,6 @@
 # uoft-profs
-[![BuildStatus](https://travis-ci.com/Walden-Shen/uoft-profs.svg?branch=master)](https://travis-ci.com/Walden-Shen/uoft-profs)
 
-This library intends to offer course selection advice to students at UofT, e.g., whether the prof is good, whether the course is difficult, etc. Moreover, it automates the generation of one's timetable based on one's course selection.
+This library offers course selection advice to students at UofT, e.g., whether the prof is good, whether the course is difficult, etc. Moreover, it automates the generation of one's timetable based on one's course selection.
 
 ## Functions to implement ...
   - [x] Scrape all the course evaluation data
